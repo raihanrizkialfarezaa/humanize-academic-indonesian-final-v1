@@ -16,6 +16,8 @@ Sunting sebagai editor akademik bahasa Indonesia. Hasilkan prosa yang memperliha
 - Baca [qa-dan-integritas.md](references/qa-dan-integritas.md) sebelum menyunting naskah panjang, naskah berangka banyak, dokumen dengan rumus/sitasi, atau perubahan yang melibatkan pemadatan dan penyusunan ulang.
 - Baca [pertahanan-parafrase-adversarial.md](references/pertahanan-parafrase-adversarial.md) ketika pengguna menyebut detektor AI, *humanizer*, *adversarial paraphrasing*, ambang skor, atau penyamaran asal teks.
 - Baca [contoh-transformasi.md](references/contoh-transformasi.md) jika pola perbaikannya belum jelas atau diperlukan pembanding lintasbidang.
+- Baca [residu-retoris-akademik.md](references/residu-retoris-akademik.md) untuk mengaudit residu retoris, kewajaran S1 TI, dan format consistency guard (italic mekanis, backtick mekanis).
+- Baca [checker-metriks-retoris.md](references/checker-metriks-retoris.md) ketika perlu menjalankan rule checker dengan status `PASS/INFO/REVIEW/FAIL`, termasuk `MIC_MECHANICAL_ITALIC_GUARD` dan `MIC_MECHANICAL_BACKTICK_GUARD`.
 - Baca [landasan.md](references/landasan.md) hanya ketika perlu menjelaskan dasar kebahasaan, memperbarui pola, atau membahas keterbatasan detektor.
 
 Jangan memuat semua referensi tanpa kebutuhan. Untuk penyuntingan biasa, `pola-bahasa-ai-indonesia.md` dan bagian relevan dari `ragam-akademik.md` biasanya cukup.
