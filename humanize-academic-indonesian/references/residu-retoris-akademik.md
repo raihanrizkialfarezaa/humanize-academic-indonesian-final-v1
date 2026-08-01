@@ -203,10 +203,34 @@ Pola sanggahan seperti `bukan X, melainkan Y` berguna untuk membatasi klaim, tet
 
 | Pola Formulaik | Risiko | Alternatif Kontekstual |
 | :--- | :--- | :--- |
-| `X bukan dari anggapan bahwa Y, melainkan...` | terdengar defensif atau seperti respons prompt | nyatakan alasan positif secara langsung jika Y tidak perlu disangkal |
+| `X bukan dari anggapan bahwa Y, melainkan...` | terdengar defensif atau seperti respons prompt | nyatakan alasan positif secara langsung jika Y tidak perlu disanggah |
+| `kontribusi bukan X, melainkan Y` | menyangkal hal yang tidak dituduhkan pembaca | nyatakan kontribusi secara langsung |
 | `bukan hanya X, tetapi juga Y` | memperbesar klaim tanpa bukti | pertahankan hanya jika X dan Y benar-benar dua kontribusi berbeda |
 | `Oleh karena itu` berturut-turut | transisi terasa mekanis | gunakan transisi implisit, `dampaknya`, `atas dasar ini`, atau hapus jika hubungan sudah jelas |
 | `Dengan demikian` setelah kalimat non-kausal | simpulan tidak dibangun | ganti dengan hubungan yang benar atau pisahkan klaim |
+
+### Negasi polar defensif berulang
+
+Jika pola `tidak/bukan X, melainkan/tetapi Y` muncul dua kali atau lebih dalam satu bagian, tinjau apakah sanggahan diperlukan untuk mencegah kesalahpahaman nyata atau hanya menjadi cetakan retoris. Cetakan ini menjadi sinyal kuat jika:
+
+- sanggahan menanggapi tuduhan yang belum diajukan pembaca;
+- kalimat sebelumnya tidak memuat pernyataan atau asumsi yang perlu dibantah;
+- pola yang sama muncul pada paragraf berbeda sehingga membentuk irama defensif yang seragam.
+
+Rekonstruksi aman:
+
+1. Majukan alasan positif sebagai kalimat utama.
+2. Tempatkan pembatasan sebagai klausa setelah pernyataan positif, bukan sebagai cetakan `bukan X, melainkan Y`.
+3. Pertahankan pola jika kontras membawa pembeda operasional atau metodologis yang tidak dapat dinyatakan tanpa negasi—misalnya membedakan metrik keselamatan dari metrik performa sebagai kriteria keberhasilan.
+
+Contoh:
+
+- Defensif berulang: *Kebutuhan pengembangan tidak berangkat dari asumsi bahwa arsitektur monolith selalu tidak memadai, melainkan dari kebutuhan Apotek Bisma untuk mengelola proses multicabang secara terpusat.*
+- Lebih langsung: *Apotek Bisma memerlukan pengelolaan proses multicabang secara terpusat. Arsitektur monolith yang ada tetap menjadi baseline fungsional; migrasi didorong oleh kebutuhan koordinasi data, bukan oleh asumsi bahwa monolith tidak memadai.*
+
+Contoh yang dipertahankan karena kontras operasional:
+
+- Sah: *Keberhasilan Kondisi C tidak ditentukan hanya oleh latency atau throughput, melainkan terutama oleh tidak ditemukannya oversell, lost update, duplicate effect, untraceable event, dan permanent mismatch.* — Negasi di sini membedakan dua kelompok metrik sebagai kriteria keberhasilan; tanpa kontras ini pembaca dapat salah menilai keberhasilan hanya dari performa.
 
 Jangan menghapus negasi yang membawa batas substansi. Kata `tidak`, `belum`, `tanpa`, `kecuali`, dan `bukan` termasuk elemen terlindungi jika mengubah polaritas atau cakupan.
 

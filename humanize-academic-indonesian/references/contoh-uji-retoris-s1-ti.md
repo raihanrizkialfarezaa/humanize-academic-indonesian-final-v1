@@ -227,7 +227,41 @@ Catatan: pertahankan endpoint sebagai kode. Jangan menambah autentikasi sesi ata
 
 ---
 
-## 8. Test Case Ringkas untuk Checker
+## 8. Negasi Polar Defensif Berulang
+
+### Kasus 8.1 Motivasi Penelitian
+
+| Status | Contoh |
+| :--- | :--- |
+| Terlalu formulaik | Kebutuhan pengembangan tidak berangkat dari asumsi bahwa arsitektur monolith selalu tidak memadai, melainkan dari kebutuhan Apotek Bisma untuk mengelola proses multicabang secara terpusat. |
+| Wajar S1 TI | Apotek Bisma memerlukan pengelolaan proses multicabang secara terpusat. Arsitektur monolith yang ada tetap menjadi baseline fungsional; migrasi didorong oleh kebutuhan koordinasi data lintas cabang dan gudang, bukan oleh asumsi bahwa monolith tidak memadai. |
+| Terlalu profesional | Motivasi migrasi arsitektural diposisikan pada kebutuhan orkestrasi data lintas cabang, bukan pada inferensi kegagalan inheren arsitektur monolitik terpusat. |
+| Rusak makna | Arsitektur monolith tidak memadai sehingga Apotek Bisma memerlukan migrasi ke microservices. |
+
+Catatan: versi formulaik memakai pola `tidak X, melainkan Y` yang menanggapi asumsi yang belum diajukan pembaca. Versi wajar memajukan alasan positif, lalu menempatkan pembatasan sebagai klausa akhir. Versi rusak makna menghilangkan pembatasan dan mengubah posisi penulis terhadap monolith.
+
+### Kasus 8.2 Kontribusi Penelitian
+
+| Status | Contoh |
+| :--- | :--- |
+| Terlalu formulaik | Kontribusi yang ditargetkan bukan pola baru, melainkan evaluasi terukur terhadap kombinasi mekanisme proteksi pada konteks transaksi apotek. |
+| Wajar S1 TI | Kontribusi yang ditargetkan adalah evaluasi terukur terhadap kombinasi mekanisme proteksi pada konteks transaksi apotek. |
+| Terlalu profesional | Kontribusi penelitian diposisikan sebagai evaluasi empiris terukur terhadap integrasi mekanisme proteksi konsistensi dalam domain transaksional farmasi retail. |
+| Rusak makna | Penelitian ini menghasilkan pola baru untuk proteksi konsistensi pada transaksi apotek. |
+
+Catatan: versi formulaik menyangkal hal yang tidak dituduhkan pembaca (`bukan pola baru`). Cukup nyatakan apa kontribusinya secara langsung. Versi rusak makna justru mengklaim pola baru.
+
+### Kasus 8.3 Negasi Operasional yang Sah
+
+| Status | Contoh |
+| :--- | :--- |
+| Wajar S1 TI | Keberhasilan Kondisi C tidak ditentukan hanya oleh latency atau throughput, melainkan terutama oleh tidak ditemukannya oversell, lost update, duplicate effect, untraceable event, dan permanent mismatch pada konfigurasi pengujian yang telah dikunci. |
+
+Catatan: pola `tidak...hanya...melainkan terutama` dipertahankan karena membedakan dua kelompok metrik sebagai kriteria keberhasilan. Tanpa kontras ini pembaca dapat salah menilai keberhasilan hanya dari metrik performa. Ini bukan pola defensif kosong.
+
+---
+
+## 9. Test Case Ringkas untuk Checker
 
 Gunakan daftar ini sebagai red-team kecil untuk rule otomatis.
 
@@ -245,10 +279,12 @@ Gunakan daftar ini sebagai red-team kecil untuk rule otomatis.
 | TC-10 | *Berdasarkan hal tersebut, penelitian ini pada dasarnya diarahkan untuk dapat melakukan pengembangan...* | `DCP_DELAYED_CONCRETE_PAYLOAD` | REVIEW |
 | TC-11 | *Penelitian ini lebih khusus dibandingkan penelitian sebelumnya.* | `ADS_AXISLESS_DIFFERENCE` | REVIEW |
 | TC-12 | *Berdasarkan hasil pengujian black box, fitur yang diuji berjalan sesuai skenario.* | `S1TI_NATURALNESS_GATE` | PASS |
+| TC-13 | *Kebutuhan pengembangan tidak berangkat dari asumsi bahwa monolith tidak memadai, melainkan dari kebutuhan apotek. Kontribusi bukan pola baru, melainkan evaluasi terukur.* | `SRWD_POLAR_NEGATION` | REVIEW |
+| TC-14 | *Keberhasilan Kondisi C tidak ditentukan hanya oleh latency, melainkan terutama oleh tidak ditemukannya oversell.* | `SRWD_POLAR_NEGATION` | INFO/PASS |
 
 ---
 
-## 9. Rubrik Sidang-Ready
+## 10. Rubrik Sidang-Ready
 
 Sebelum menerima revisi skripsi S1 TI, tanyakan apakah penulis dapat menjawab pertanyaan berikut tanpa menambah fakta baru:
 

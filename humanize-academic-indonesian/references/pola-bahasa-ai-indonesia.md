@@ -70,15 +70,42 @@ Pantau rantai `X meningkatkan Y sehingga berdampak pada Z` ketika mekanisme atau
 - gunakan `diduga memengaruhi` untuk dugaan;
 - gunakan `menyebabkan` hanya jika desain dan bukti mendukung sebab-akibat.
 
-### 2.6 Keseimbangan buatan
+### 2.6 Negasi polar defensif berulang
+
+Pantau pola `tidak/bukan X, melainkan/tetapi Y` yang berulang dalam satu bagian atau satu dokumen. Satu pemakaian dapat sah jika kontras benar-benar diperlukan—misalnya membatasi klaim atau mencegah salah tafsir metodologis. Namun, dua atau lebih kemunculan pola yang sama dalam jarak dekat membentuk cetakan yang terasa seperti respons prompt, bukan keputusan argumentatif penulis.
+
+Bentuk yang perlu dipantau:
+
+- `X tidak berangkat dari asumsi bahwa ..., melainkan dari ...`;
+- `kontribusi yang ditargetkan bukan ..., melainkan ...`;
+- `tujuan penelitian bukan ..., tetapi ...`;
+- `pendekatan ini tidak dimaksudkan untuk ..., melainkan untuk ...`.
+
+Risiko utama: nada defensif yang seragam, seolah menanggapi tuduhan yang belum diajukan pembaca. Jika sanggahan tidak diperlukan untuk mencegah kesalahpahaman nyata, nyatakan alasan positif secara langsung.
+
+Rekonstruksi aman:
+
+1. Majukan alasan positif sebagai kalimat utama.
+2. Jika pembatasan tetap diperlukan, tempatkan sebagai klausa pembatas setelah pernyataan positif, bukan sebagai cetakan `bukan X, melainkan Y`.
+3. Jangan menghapus semua pola secara mekanis—evaluasi per fungsi. Pertahankan jika kontras membawa pembeda operasional yang tidak dapat dinyatakan tanpa negasi.
+
+Contoh:
+
+> Defensif berulang: *Kebutuhan pengembangan tidak berangkat dari asumsi bahwa arsitektur monolith selalu tidak memadai, melainkan dari kebutuhan Apotek Bisma untuk mengelola proses multicabang secara terpusat.*
+>
+> Lebih langsung: *Apotek Bisma memerlukan pengelolaan proses multicabang secara terpusat. Arsitektur monolith yang ada tetap menjadi baseline fungsional; migrasi didorong oleh kebutuhan koordinasi data lintas cabang dan gudang, bukan oleh asumsi bahwa monolith tidak memadai.*
+
+Contoh kedua hanya sah jika proposisi yang sama memang tersedia pada sumber.
+
+### 2.7 Keseimbangan buatan
 
 Pola `di satu sisi ... di sisi lain ...` sering memaksakan dua kutub yang tidak setara. Gunakan hanya jika benar-benar ada dua posisi atau dampak yang perlu dibandingkan.
 
-### 2.7 Batasan generik
+### 2.8 Batasan generik
 
 Hindari menutup pembahasan dengan `penelitian ini masih memiliki keterbatasan` tanpa menyebut keterbatasannya. Nyatakan sumber keterbatasan dan akibatnya terhadap interpretasi atau generalisasi.
 
-### 2.8 Rekomendasi serbaguna
+### 2.9 Rekomendasi serbaguna
 
 Pantau `penelitian selanjutnya diharapkan dapat mengembangkan penelitian ini secara lebih luas`. Sebut variabel, populasi, desain, periode, atau kondisi yang perlu diuji jika informasi itu memang tersedia.
 
@@ -233,6 +260,8 @@ Pilih satu penanda yang paling tepat tanpa meningkatkan kepastian.
 ### 4.7 Negasi berpasangan yang teatrikal
 
 Pantau `bukan hanya ..., tetapi juga ...` jika dipakai berulang atau hanya memperbesar klaim. Pertahankan bila kontras keduanya memang penting.
+
+Pantau pula cetakan `tidak/bukan X, melainkan Y` yang berulang pada tingkat kalimat. Jika dua kalimat dalam satu paragraf atau dua paragraf berdekatan memakai cetakan yang sama, paragraf tersebut terasa seperti menjawab daftar kemungkinan tuduhan alih-alih membangun argumen. Lihat §2.6 untuk diagnosis dan rekonstruksi tingkat isi.
 
 ### 4.8 Kalimat definisi kosong
 

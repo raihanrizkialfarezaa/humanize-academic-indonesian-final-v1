@@ -110,15 +110,28 @@ Audit ini memindai penggunaan pola retorika berulang dalam jendela pemeriksaan 3
 `rule_id`: `SRWD_POLAR_NEGATION`
 
 - Deteksi: `(bukan|tidak) ... (melainkan|tetapi|namun|hanya)`.
-- Batas alarm: lebih dari 1 kali per 300 kata.
+- Batas alarm: lebih dari 1 kali per 300 kata, atau lebih dari 2 kali per bagian naskah (pendahuluan, metode, hasil, dst.).
 - Status default: REVIEW.
-- Tindakan: variasikan dengan alasan positif langsung jika sanggahan tidak perlu; pertahankan jika negasi membatasi klaim.
+- Tindakan: variasikan dengan alasan positif langsung jika sanggahan tidak perlu; pertahankan jika negasi membatasi klaim secara operasional.
+
+Diagnosis tambahan untuk pola defensif berulang:
+
+- Jika dua atau lebih kalimat `bukan/tidak X, melainkan Y` muncul dalam satu bagian dan sanggahan menanggapi asumsi yang tidak diajukan pembaca, naikkan ke REVIEW kuat.
+- Periksa apakah kalimat sebelumnya memuat pernyataan yang memang perlu dibantah. Jika tidak, pola bersifat defensif kosong.
+- Periksa apakah pola yang sama muncul lintas paragraf dan membentuk irama seragam. Irama defensif seragam merupakan sinyal formulaik yang kuat.
+
+Rekonstruksi yang disarankan:
+
+1. Majukan alasan positif sebagai kalimat utama.
+2. Tempatkan pembatasan sebagai klausa pembatas setelah pernyataan positif.
+3. Jika kontras membawa pembeda operasional (misalnya metrik keselamatan vs. metrik performa), pertahankan.
 
 False positive:
 
 - pembatasan definisi;
 - pembeda konseptual yang memang membutuhkan kontras;
-- negasi metodologis seperti `tidak ditemukan perbedaan` atau `hipotesis nol tidak ditolak`.
+- negasi metodologis seperti `tidak ditemukan perbedaan` atau `hipotesis nol tidak ditolak`;
+- kontras operasional yang membedakan dua kelompok metrik, dua jenis evaluasi, atau dua peran komponen yang dapat tertukar jika tidak dikontraskan.
 
 ### Rule 3.2: Consecutive Causal Openers
 
