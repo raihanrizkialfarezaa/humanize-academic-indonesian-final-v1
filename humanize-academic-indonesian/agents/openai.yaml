@@ -1,0 +1,15 @@
+interface:
+  display_name: Humanizer Akademik Indonesia
+  short_description: Sunting akademik Indonesia yang jernih dan presisi
+  default_prompt: Gunakan $humanize-academic-indonesian untuk menyunting naskah ini
+    agar alami dan mudah dipahami pembaca sasaran, menjaga setiap klaim serta detail
+    teknis, lalu mengaudit kesetiaan, kewajaran retoris, dan keterbacaan.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
