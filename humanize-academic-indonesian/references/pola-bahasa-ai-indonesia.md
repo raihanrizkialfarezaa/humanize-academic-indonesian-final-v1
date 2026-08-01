@@ -462,6 +462,18 @@ Pantau pergantian `request`/`permintaan`, `fault`/`gangguan`, `flow`/`alur`, ata
 
 Periksa pula apakah kata/ungkapan asing, nama produk, dan identifier diformat sesuai kategori. Inkonsistensi antara *transactional outbox*, `transactional outbox`, dan bentuk biasa dapat mengaburkan apakah unsur itu istilah, kode, atau label. Ikuti gaya selingkung dan EYD, bukan target statistik tanda baca.
 
+### 7.13 Cetak miring mekanis pada revisi
+
+Pantau penambahan cetak miring (italic) yang terlalu konsisten dan merata pada revisi jika naskah asli tidak menggunakan italic atau menggunakannya secara sporadis. Italic yang diterapkan secara 100% konsisten pada semua istilah asing merupakan sinyal proses editorial otomatis yang kuat karena mahasiswa yang menulis sendiri biasanya tidak konsisten sepenuhnya dalam memformat italic.
+
+Sesuaikan pola italic revisi dengan pola italic naskah asli. Jika naskah asli tidak menggunakan italic, revisi sebaiknya juga tidak atau sangat minim — kecuali gaya selingkung memang mengharuskannya. Jangan memiringkan nama produk, bahasa pemrograman, merek, kode, URL, endpoint, dan identifier. Biarkan sedikit inkonsistensi kecil yang wajar.
+
+### 7.14 Format kode (backtick) mekanis pada revisi
+
+Pantau penambahan backtick atau format kode pada identifier, variabel, nama field, atau nama event yang pada naskah asli ditulis sebagai teks biasa. Penambahan backtick secara 100% konsisten pada semua identifier merupakan sinyal proses editorial otomatis karena mahasiswa yang menulis sendiri biasanya tidak memformat semua identifier sebagai kode secara merata.
+
+Sesuaikan format revisi dengan format naskah asli. Jika naskah asli menulis product_id tanpa backtick, revisi juga sebaiknya tanpa backtick. Prinsip umum: jangan menambahkan format Markdown yang tidak ada pada naskah asli kecuali diminta secara eksplisit.
+
 ## 8. Pola penyajian
 
 ### 8.1 Judul dan subjudul generik

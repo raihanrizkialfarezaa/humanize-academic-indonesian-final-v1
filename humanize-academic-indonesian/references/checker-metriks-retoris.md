@@ -512,6 +512,68 @@ Gate ini tidak boleh digunakan untuk menambahkan kesalahan, slang, pengalaman pa
 
 ---
 
+## 16b. Mechanical Italic Consistency Guard
+
+`rule_id`: `MIC_MECHANICAL_ITALIC_GUARD`
+
+Rule ini mendeteksi penambahan cetak miring (italic) yang terlalu konsisten dan mekanis pada revisi, terutama jika naskah asli tidak menggunakan italic atau menggunakannya secara sporadis.
+
+### Masalah
+
+Penambahan italic secara 100% konsisten pada semua istilah asing merupakan sinyal proses editorial otomatis yang kuat. Mahasiswa S1 TI yang menulis sendiri biasanya:
+
+- tidak konsisten 100% dalam memformat italic;
+- menganggap beberapa istilah sudah cukup umum di domain TI tanpa perlu italic;
+- mengikuti gaya selingkung kampus, yang sering tidak mengharuskan italic pada semua istilah asing;
+- kadang lupa memformat beberapa kemunculan.
+
+### Deteksi
+
+Hitung jumlah italic tunggal (bukan bold) pada naskah asli dan naskah revisi. Jika naskah asli memiliki 0 atau sangat sedikit italic, tetapi revisi menambahkan italic secara merata pada hampir semua istilah asing, status REVIEW.
+
+Perhatikan pola berikut:
+
+- italic yang diulang pada setiap kemunculan istilah yang sama, tanpa pernah terlewat;
+- italic pada istilah yang sudah sangat umum di domain TI dan sudah mapan (consumer, service, update, state, retry, version, crash, request, run, seed, cache, thread, worker, broker);
+- italic pada nama produk atau bahasa pemrograman yang seharusnya tidak dicetak miring (RabbitMQ, NestJS, Laravel, Node.js, MySQL, Docker Compose).
+
+### Status Default
+
+- REVIEW jika naskah asli tidak menggunakan italic tetapi revisi menambahkan italic secara masif dan merata;
+- INFO jika revisi hanya menambahkan italic pada kemunculan pertama istilah asing yang belum diserap;
+- PASS jika pola italic konsisten dengan gaya selingkung yang telah ditentukan.
+
+### Tindakan Aman
+
+1. Sesuaikan pola italic revisi dengan pola italic naskah asli. Jika naskah asli tidak menggunakan italic, revisi sebaiknya juga tidak atau sangat minim.
+2. Jika gaya selingkung kampus mengharuskan italic pada istilah asing, italic hanya pada kemunculan penting pertama, lalu konsisten tanpa italic pada kemunculan selanjutnya — kecuali istilah yang memang jarang muncul.
+3. Jangan memiringkan nama produk, bahasa pemrograman, merek, kode, URL, endpoint, dan identifier.
+4. Biarkan sedikit inkonsistensi kecil yang wajar — manusia tidak 100% konsisten.
+
+### False Positive
+
+- gaya selingkung yang memang mengharuskan italic pada semua istilah asing;
+- naskah jurnal yang mengikuti standar penerbitan tertentu;
+- revisi yang diminta pengguna secara eksplisit untuk menambahkan italic.
+
+### 16b-2. Mechanical Backtick/Code Format Guard
+
+`rule_id`: `MIC_MECHANICAL_BACKTICK_GUARD`
+
+Pantau penambahan format kode (backtick) pada identifier, variabel, atau nama field yang pada naskah asli ditulis sebagai teks biasa. Penambahan backtick secara konsisten pada semua identifier tanpa pernah melewatkan satu pun merupakan sinyal proses editorial otomatis.
+
+Deteksi: naskah asli menulis `product_id`, `correlation_id`, `on_hand`, atau identifier lain tanpa backtick, tetapi revisi menambahkan backtick pada semua kemunculan secara merata.
+
+Status default:
+
+- REVIEW jika naskah asli tidak menggunakan backtick tetapi revisi menambahkannya secara masif;
+- INFO jika format backtick sudah ada pada naskah asli dan revisi mempertahankannya;
+- PASS jika gaya selingkung memang mengharuskan format kode pada identifier.
+
+Tindakan aman: sesuaikan format revisi dengan format naskah asli. Jika asli tidak pakai backtick, revisi juga tidak. Mahasiswa yang menulis sendiri biasanya tidak konsisten 100% dalam memformat identifier sebagai kode.
+
+---
+
 ## 17. Safe Suggestion Policy
 
 Checker boleh menyarankan tindakan berikut:

@@ -357,7 +357,10 @@ Sebelum menerima revisi untuk skripsi S1 TI, pastikan:
 - [ ] pengulangan istilah inti dipertahankan jika membantu konsistensi;
 - [ ] prosedur metode/perancangan tetap mudah diikuti secara berurutan;
 - [ ] klaim hasil tidak lebih kuat daripada skenario, metrik, tabel, atau data yang tersedia;
-- [ ] suara akhir tidak jauh lebih megah, padat, atau abstrak daripada sumber dan sampel penulis.
+- [ ] suara akhir tidak jauh lebih megah, padat, atau abstrak daripada sumber dan sampel penulis;
+- [ ] pola cetak miring, pilihan kata, dan transisi tidak berubah secara mekanis dan merata dibanding naskah asli — revisi yang mengubah terlalu banyak hal kecil secara 100% konsisten menghasilkan sinyal proses otomatis;
+- [ ] jika naskah asli tidak menggunakan italic, revisi tidak menambahkan italic secara masif pada semua istilah asing;
+- [ ] jika naskah asli tidak menggunakan backtick/format kode pada identifier, revisi tidak menambahkannya secara merata — format Markdown yang tidak ada pada asli merupakan sinyal proses editorial.
 
 ---
 
