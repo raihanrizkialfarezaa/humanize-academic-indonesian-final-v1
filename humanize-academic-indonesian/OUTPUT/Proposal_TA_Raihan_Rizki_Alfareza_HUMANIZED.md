@@ -46,31 +46,31 @@ Mojokerto/Surabaya, [tanggal persetujuan] Pembimbing,
 
 ## **A. Latar Belakang** 
 
-Apotek Bisma menjalankan tiga cabang dan satu gudang pusat. Berdasarkan keterangan awal pemilik atau pengelola, setiap cabang ditangani oleh dua pegawai, sedangkan kegiatan gudang dijalankan oleh empat pegawai. Operasional cabang saat ini menggunakan aplikasi Laravel 8 yang berjalan secara lokal pada masing-masing cabang dengan basis data yang berdiri sendiri, sementara pencatatan gudang masih dibantu spreadsheet. Kondisi tersebut membuat data transaksi, stok, dan laporan belum tersinkronisasi secara langsung. Rekonsiliasi antarcabang dan gudang baru dilakukan oleh petugas khusus pada akhir bulan sehingga ketidaksesuaian pencatatan berpotensi baru diketahui setelah periode operasional berjalan cukup lama. 
+Apotek Bisma mengoperasikan tiga cabang dan satu gudang pusat. Menurut keterangan awal pemilik, dua pegawai menangani tiap cabang, sementara empat pegawai bekerja di gudang. Masing-masing cabang menjalankan aplikasi Laravel 8 secara lokal dengan basis data tersendiri; pencatatan gudang masih menggunakan spreadsheet. Akibatnya, data transaksi, stok, dan laporan belum saling terhubung. Petugas khusus baru melakukan rekonsiliasi antarcabang dan gudang di akhir bulan, sehingga selisih pencatatan dapat terlambat diketahui berminggu-minggu. 
 
-Apotek Bisma memerlukan pengelolaan proses multicabang secara terpusat. Gudang memerlukan informasi penjualan dan saldo stok per lokasi sebagai dasar replenishment, sedangkan cabang memerlukan proses penjualan, reservasi, penerimaan transfer, dan pembayaran yang tetap dapat ditelusuri berdasarkan lokasi. Penambahan kanal transaksi melalui kasir, Self-Order Kiosk, Midtrans, dan QRIS statis juga memperluas kebutuhan koordinasi data yang sebelumnya berhenti pada satu proses lokal. Arsitektur monolith yang ada tetap menjadi baseline fungsional; migrasi didorong oleh kebutuhan koordinasi data lintas cabang dan gudang, bukan oleh asumsi bahwa monolith tidak memadai. 
+Apotek Bisma membutuhkan satu sistem terpusat yang mengoordinasikan operasional ketiga cabang dan gudang. Gudang perlu mengetahui penjualan dan saldo stok per lokasi agar dapat menentukan jadwal pengisian ulang. Cabang memerlukan proses penjualan, reservasi, penerimaan transfer, dan pembayaran yang tetap tercatat berdasarkan lokasinya. Kanal transaksi juga bertambah — kasir, Self-Order Kiosk, Midtrans, dan QRIS statis — sehingga koordinasi data yang sebelumnya cukup berjalan di satu proses lokal perlu menjangkau beberapa titik sekaligus. Arsitektur monolith yang ada tetap dijadikan acuan fungsional; perpindahan ke arsitektur baru didorong oleh kebutuhan koordinasi data lintas cabang dan gudang. 
 
 4 
 
-Pada monolith terpusat, perubahan beberapa tabel masih dapat diselesaikan melalui satu transaksi basis data. Setelah domain Sales, Inventory, dan Payment dipisahkan menjadi layanan dengan basis data masing-masing, transaksi lintas layanan tidak lagi memiliki rollback ACID global. Kegagalan setelah data bisnis tersimpan tetapi sebelum event dipublikasikan dapat menimbulkan masalah dual-write. Pengiriman event ulang dapat menghasilkan efek ganda apabila consumer tidak idempoten, sedangkan pembaruan stok secara konkuren dapat menyebabkan lost update atau oversell apabila konflik tidak ditangani. Karena itu, konsistensi pada sistem terdistribusi perlu dirancang melalui transaksi lokal, pertukaran event yang andal, pengendalian konkurensi, dan mekanisme pemulihan (Richardson, 2018; Kleppmann, 2017). 
+Pada monolith terpusat, perubahan beberapa tabel masih dapat diselesaikan melalui satu transaksi basis data. Setelah domain Sales, Inventory, dan Payment dipisah menjadi layanan dengan basis data masing-masing, transaksi lintas layanan kehilangan rollback ACID global. Jika data bisnis sudah tersimpan tetapi event gagal terkirim, muncul masalah dual-write. Event yang terkirim lebih dari sekali dapat menghasilkan efek ganda apabila consumer tidak idempoten. Pembaruan stok yang terjadi bersamaan pun berpotensi menimpa satu sama lain atau menjual melebihi ketersediaan. Oleh karena itu, konsistensi pada sistem terdistribusi perlu dijaga melalui transaksi lokal, pertukaran event yang andal, pengendalian konkurensi, dan mekanisme pemulihan (Richardson, 2018; Kleppmann, 2017). 
 
-Transactional Outbox menyimpan perubahan data bisnis dan catatan event dalam transaksi lokal yang sama sehingga event yang belum berhasil dipublikasikan tetap dapat dikirim ulang oleh worker (Richardson, t.t.-a). Pada sisi consumer, durable inbox atau idempotency menyimpan identitas event yang telah diproses agar redelivery tidak menimbulkan dampak bisnis kedua (Richardson, t.t.-c). Optimistic Concurrency Control (OCC) menggunakan atribut version untuk menolak pembaruan yang didasarkan pada versi lama. Untuk transaksi yang melintasi Sales, Inventory, dan Payment, Saga Orchestrator mencatat state dan menentukan langkah lanjutan atau compensation ketika sebagian proses gagal (Richardson, 2018; Richardson, t.t.-b). Mekanisme tersebut tidak menjadikan sistem selalu 
+Transactional Outbox menyimpan perubahan data bisnis dan catatan event dalam satu transaksi lokal; worker kemudian membaca catatan tersebut dan mengirim event ke broker sampai mendapat publisher confirm, sehingga event yang tertunda tetap dapat dikirim ulang (Richardson, t.t.-a). Di sisi penerima, durable inbox menyimpan identitas event yang telah diproses agar pengiriman ulang tidak menimbulkan efek bisnis kedua (Richardson, t.t.-c). Optimistic Concurrency Control (OCC) memanfaatkan atribut version untuk menolak pembaruan yang bertolak dari versi lama. Saga Orchestrator, yang mencatat state dan menentukan langkah lanjutan atau compensation ketika sebagian proses gagal, mengoordinasikan transaksi yang melintasi Sales, Inventory, dan Payment (Richardson, 2018; Richardson, t.t.-b). Gabungan mekanisme tersebut tidak membuat sistem selalu 
 
 5 
 
-konsisten secara instan, tetapi dirancang agar seluruh proses dapat menuju keadaan akhir yang sah dan dapat ditelusuri. 
+konsisten secara instan; yang dirancang ialah agar setiap proses dapat menuju keadaan akhir yang sah dan dapat ditelusuri. 
 
-Penelitian terkait oleh Rochman dan Suartana (2026) menerapkan event-driven architecture pada sistem manajemen gudang. Penelitian tersebut menjadi pijakan bahwa pendekatan berbasis event relevan pada aliran persediaan. Fokus penelitian ini berbeda karena objek evaluasinya adalah konsistensi transaksi lintas layanan pada POS/ERP apotek dengan database per service, pembayaran asinkron, konflik stok, duplicate delivery, dual-write, dan partial failure. Perbedaan utama tidak diletakkan pada penggunaan framework, tetapi pada pengujian gabungan Transactional Outbox, OCC, durable idempotency, Saga orchestration, compensation, retry, dan DLQ melalui invariant bisnis serta fault injection. 
+Rochman dan Suartana (2026) menerapkan event-driven architecture pada sistem manajemen gudang, yang menunjukkan bahwa pendekatan berbasis event relevan untuk aliran persediaan. Fokus penelitian ini berada pada aspek yang berbeda: konsistensi transaksi lintas layanan pada POS/ERP apotek yang memakai database per service, melibatkan pembayaran asinkron, konflik stok, duplicate delivery, dual-write, dan partial failure. Pembedanya bukan pada framework yang dipakai, melainkan pada pengujian gabungan Transactional Outbox, OCC, durable idempotency, Saga orchestration, compensation, retry, dan DLQ yang divalidasi melalui invariant bisnis dan fault injection. 
 
-Untuk memperoleh pembanding yang lebih dapat dipertanggungjawabkan, penelitian menyusun tiga kondisi yang setara secara fungsional. Kondisi A adalah monolith terpusat terkontrol berbasis Laravel 8 dan satu basis data MySQL; Kondisi B adalah event-driven microservices berbasis NestJS dengan database per service tetapi tanpa mekanisme keandalan lengkap; Kondisi C menambahkan Outbox-Inbox, OCC, durable idempotency, Saga Orchestrator, compensation, retry, dan DLQ. Perbedaan runtime Laravel dan Node.js tetap diperlakukan sebagai faktor perancu sehingga hasil performa tidak akan diatribusikan hanya kepada satu pola arsitektur. Penilaian utama diarahkan pada kebenaran data, kemampuan pemulihan, konvergensi, serta biaya teknis mekanisme proteksi. 
+Agar perbandingan dapat dipertanggungjawabkan, tiga kondisi yang setara secara fungsional disusun. Kondisi A berupa monolith terpusat terkontrol berbasis Laravel 8 dengan satu basis data MySQL. Kondisi B berupa event-driven microservices berbasis NestJS dengan database per service tetapi tanpa mekanisme keandalan lengkap. Kondisi C menambahkan Outbox-Inbox, OCC, durable idempotency, Saga Orchestrator, compensation, retry, dan DLQ di atas Kondisi B. Perbedaan runtime Laravel dan Node.js diperlakukan sebagai faktor perancu; hasil performa tidak akan diatribusikan pada satu pola arsitektur saja. Penilaian utama diarahkan pada kebenaran data, kemampuan pemulihan, konvergensi, dan biaya teknis mekanisme proteksi. 
 
 6 
 
-Dengan rancangan tersebut, penelitian menargetkan bukti terukur mengenai bagaimana mekanisme proteksi konsistensi bekerja pada empat use case: penjualan konkuren melalui POS dan kiosk, restock yang berdekatan dengan penjualan, pembayaran Midtrans, serta QRIS statis dengan konfirmasi admin. Keberhasilan Kondisi C tidak ditentukan hanya oleh latency atau throughput, melainkan terutama oleh tidak ditemukannya oversell, lost update, duplicate effect, untraceable event, dan permanent mismatch pada konfigurasi pengujian yang telah dikunci. Klaim penelitian dibatasi pada use case, dataset, beban, fault, dan lingkungan eksperimen yang diuji; penelitian tidak dimaksudkan untuk menyatakan microservices selalu lebih unggul daripada monolith. 
+Empat use case menjadi sasaran pengujian: penjualan konkuren melalui POS dan kiosk, restock yang berdekatan dengan penjualan, pembayaran Midtrans, serta QRIS statis dengan konfirmasi admin. Kondisi C dianggap berhasil bukan semata-mata berdasarkan latency atau throughput, melainkan terutama berdasarkan tidak ditemukannya oversell, lost update, duplicate effect, untraceable event, dan permanent mismatch pada konfigurasi pengujian yang telah dikunci. Klaim penelitian hanya berlaku untuk use case, dataset, beban, fault, dan lingkungan eksperimen yang diuji; bukan untuk menyatakan bahwa microservices selalu lebih unggul daripada monolith. 
 
 ## **B. Identifikasi Masalah** 
 
-1. Data transaksi, stok, dan laporan pada tiga cabang serta gudang belum dikelola dalam satu sistem multi-cabang terpusat sehingga rekonsiliasi masih dilakukan secara periodik. 
+1. Data transaksi, stok, dan laporan pada tiga cabang serta gudang belum dikelola dalam satu sistem multicabang terpusat sehingga rekonsiliasi masih dilakukan secara periodik. 
 
 2. Pemisahan Sales, Inventory, dan Payment ke database per service menghilangkan transaksi ACID global untuk proses bisnis lintas domain sehingga muncul risiko partial failure dan ketidakcocokan state antarlayanan. 
 
@@ -126,15 +126,15 @@ Dengan rancangan tersebut, penelitian menargetkan bukti terukur mengenai bagaima
 
 ## **1. Manfaat Keilmuan** 
 
-Penelitian diharapkan menghasilkan bukti empiris terkontrol mengenai perilaku gabungan Outbox, OCC, durable idempotency, dan Saga pada transaksi lintas layanan yang melibatkan stok dan pembayaran. Hasilnya dapat digunakan sebagai rujukan kontekstual untuk menilai trade-off antara proteksi konsistensi, kemampuan pemulihan, konvergensi, dan overhead performa pada sistem terdistribusi. 
+Penelitian ini diharapkan menghasilkan bukti empiris terkontrol tentang perilaku gabungan Outbox, OCC, durable idempotency, dan Saga ketika diterapkan pada transaksi lintas layanan yang melibatkan stok dan pembayaran. Bukti tersebut dapat menjadi rujukan kontekstual bagi pihak lain yang perlu menimbang trade-off antara proteksi konsistensi, kemampuan pemulihan, konvergensi, dan overhead performa pada sistem terdistribusi. 
 
 ## **2. Manfaat Praktis** 
 
-Bagi Apotek Bisma, artefak dan hasil evaluasi dapat menjadi dasar teknis untuk menentukan strategi migrasi dari beberapa sistem lokal menuju pengelolaan multicabang terpusat. Luaran berupa prototipe, test oracle, fault 
+Artefak dan hasil evaluasi dapat menjadi dasar teknis bagi Apotek Bisma untuk menentukan strategi migrasi dari beberapa sistem lokal ke pengelolaan multicabang terpusat. Luaran berupa prototipe, test oracle, fault 
 
 10 
 
-injector, skrip rekonsiliasi, serta laporan evaluasi juga dapat membantu proses verifikasi sebelum keputusan implementasi lebih lanjut. 
+injector, skrip rekonsiliasi, dan laporan evaluasi juga dapat membantu proses verifikasi sebelum keputusan implementasi lebih lanjut diambil. 
 
 ## **G. Asumsi Penelitian** 
 
@@ -152,65 +152,65 @@ injector, skrip rekonsiliasi, serta laporan evaluasi juga dapat membantu proses 
 
 ## **1. Monolith Terpusat dan Migrasi ke Microservices** 
 
-Monolith terpusat menempatkan fungsi aplikasi dalam satu unit deployment dan dapat menggunakan satu transaksi basis data untuk perubahan lintas tabel. Dalam penelitian ini, monolith diposisikan sebagai baseline terpusat yang memiliki model stok per lokasi dan fungsi bisnis setara dengan kondisi microservices. Migrasi ke microservices memisahkan tanggung jawab dan kepemilikan data berdasarkan domain sehingga koordinasi lintas layanan tidak lagi bergantung pada transaksi ACID global (Fowler, 2002; Richardson, 2018). 
+Monolith terpusat menempatkan seluruh fungsi aplikasi dalam satu unit deployment dan memungkinkan satu transaksi basis data menangani perubahan lintas tabel. Pada penelitian ini, monolith diposisikan sebagai baseline terpusat yang sudah memiliki model stok per lokasi dan fungsi bisnis setara dengan kondisi microservices. Ketika domain dipisah menjadi layanan-layanan yang masing-masing memiliki basis data sendiri, koordinasi lintas layanan tidak lagi dapat bergantung pada transaksi ACID global (Fowler, 2002; Richardson, 2018). 
 
 ## **2. Event-Driven Architecture dan Asynchronous I/O** 
 
-Event-driven architecture menggunakan event untuk menyatakan fakta bisnis yang telah terjadi dan memungkinkan komponen bereaksi secara asinkron. Command seperti ReserveStock meminta tindakan dan dapat ditolak, sedangkan event seperti StockReserved merekam fakta yang telah terjadi. Pada implementasi Node.js/NestJS, asynchronous I/O membantu service menangani operasi basis data, broker, webhook, dan WebSocket tanpa menahan thread selama menunggu I/O. Karakteristik ini berkaitan dengan model eksekusi, bukan jaminan konsistensi; 
+Pada event-driven architecture, event merepresentasikan fakta bisnis yang telah terjadi dan memungkinkan komponen bereaksi secara asinkron. Command seperti ReserveStock meminta suatu tindakan dan dapat ditolak; event seperti StockReserved merekam fakta yang sudah terjadi. Dalam implementasi Node.js/NestJS, asynchronous I/O membuat service dapat menangani operasi basis data, broker, webhook, dan WebSocket tanpa menahan thread selama menunggu respons I/O. Sifat ini berkaitan dengan model eksekusi, bukan jaminan konsistensi; 
 
 12 
 
-kebenaran data tetap ditentukan oleh transaksi lokal, constraint, Outbox, OCC, Inbox, dan Saga. 
+kebenaran data tetap bergantung pada transaksi lokal, constraint, Outbox, OCC, Inbox, dan Saga. 
 
 ## **3. Database per Service dan Konsistensi Data** 
 
-Setiap service memiliki data otoritatifnya sendiri. Sales memiliki order dan state Saga, Inventory memiliki saldo dan mutasi stok, Payment memiliki payment attempt dan status pembayaran, sedangkan Reporting/Notification hanya menyimpan read model. Pemisahan ini mencegah service mengubah database service lain secara langsung, tetapi menghasilkan kebutuhan koordinasi ketika satu proses bisnis menyentuh lebih dari satu service. 
+Tiap service memegang data otoritatifnya sendiri. Sales mengelola order dan state Saga; Inventory mengelola saldo dan mutasi stok; Payment mengelola payment attempt beserta status pembayaran; Reporting/Notification hanya menyimpan read model. Pemisahan semacam ini mencegah satu service mengubah basis data service lain secara langsung, tetapi menuntut koordinasi tersendiri ketika satu proses bisnis perlu menyentuh lebih dari satu service. 
 
 ## **4. Transactional Outbox** 
 
-Transactional Outbox mencatat perubahan data bisnis dan event yang akan dipublikasikan dalam transaksi lokal yang sama. Worker kemudian membaca catatan outbox dan mengirim event ke broker sampai memperoleh publisher confirm. Pola ini dirancang untuk menghindari keadaan ketika data bisnis sudah tersimpan tetapi event tidak tercatat karena crash pada proses dual-write (Richardson, t.t.-a). 
+Transactional Outbox mencatat perubahan data bisnis bersama event yang akan dikirim dalam satu transaksi lokal. Worker lalu membaca tabel outbox dan mempublikasikan event ke broker sampai mendapat publisher confirm. Dengan cara ini, keadaan ketika data bisnis sudah tersimpan tetapi event belum tercatat akibat crash di tengah proses dual-write dapat dihindari (Richardson, t.t.-a). 
 
 ## **5. Durable Inbox dan Idempotency** 
 
-Pada sistem dengan at-least-once delivery, pesan dapat dikirim ulang. Durable inbox menyimpan event_id atau idempotency key yang telah diproses sehingga consumer dapat mengenali redelivery dan mencegah efek bisnis kedua. Idempotency diperlukan pada event internal maupun webhook pembayaran yang dapat diterima lebih dari satu kali (Richardson, t.t.-c). 
+Pada sistem yang menerapkan at-least-once delivery, pesan dapat terkirim lebih dari sekali. Durable inbox menyimpan event_id atau idempotency key yang sudah diproses sehingga consumer mengenali pengiriman ulang dan tidak menjalankan efek bisnis untuk kedua kalinya. Mekanisme ini diperlukan baik untuk event internal maupun webhook pembayaran yang dapat diterima berulang (Richardson, t.t.-c). 
 
 13 
 
 ## **6. Optimistic Concurrency Control** 
 
-OCC menggunakan nilai version untuk mendeteksi apakah data berubah sejak dibaca. Update hanya berhasil apabila version yang dibawa transaksi masih sama dengan version tersimpan. Jika version telah berubah, update ditolak dan proses dapat membaca ulang state terbaru sebelum retry. Dalam konteks stok, mekanisme ini digunakan untuk mencegah pembaruan berbasis versi lama menimpa mutasi yang lebih baru (Kleppmann, 2017). 
+OCC memanfaatkan nilai version untuk mendeteksi apakah data telah berubah sejak terakhir dibaca. Pembaruan hanya berhasil jika version yang dibawa transaksi masih cocok dengan version yang tersimpan. Apabila version telah berbeda, pembaruan ditolak dan proses perlu membaca ulang state terbaru sebelum mencoba kembali. Pada konteks stok, mekanisme ini menjaga agar pembaruan yang bertolak dari versi lama tidak menimpa mutasi yang lebih baru (Kleppmann, 2017). 
 
 ## **7. Saga Orchestration dan Compensation** 
 
-Saga memecah transaksi lintas layanan menjadi rangkaian transaksi lokal. Saga Orchestrator menyimpan state dan menentukan command berikutnya berdasarkan hasil langkah sebelumnya. Jika langkah tidak dapat dilanjutkan, compensation menjalankan aksi bisnis untuk mengembalikan keadaan yang perlu dipulihkan, misalnya melepaskan reservasi stok ketika pembayaran gagal atau kedaluwarsa. Compensation bukan rollback global basis data (Richardson, 2018; Richardson, t.t.-b). 
+Saga memecah transaksi lintas layanan menjadi rangkaian transaksi lokal. Saga Orchestrator menyimpan state dan menentukan command selanjutnya berdasarkan hasil langkah sebelumnya. Jika satu langkah gagal, compensation menjalankan aksi bisnis untuk memulihkan keadaan — misalnya melepas reservasi stok ketika pembayaran gagal atau kedaluwarsa. Compensation berbeda dari rollback global basis data karena setiap langkah merupakan transaksi lokal yang telah tersimpan (Richardson, 2018; Richardson, t.t.-b). 
 
 ## **8. RabbitMQ, Publisher Confirm, ACK, Retry, dan DLQ** 
 
-RabbitMQ digunakan sebagai broker pesan. Publisher confirm memberi informasi bahwa broker telah menerima publikasi, sedangkan consumer ACK diberikan setelah pesan berhasil diproses. Pesan yang gagal dapat dikirim ulang sesuai kebijakan retry dan, setelah melewati batas yang ditetapkan, dialihkan ke Dead Letter Queue. Event di DLQ tetap dianggap terlacak, tetapi tidak sama dengan 
+RabbitMQ berperan sebagai broker pesan. Publisher confirm memberitahu bahwa broker telah menerima pesan, sedangkan consumer ACK dikirim setelah pesan berhasil diproses. Pesan yang gagal diproses dapat dikirim ulang sesuai kebijakan retry; setelah melewati batas percobaan, pesan dipindahkan ke Dead Letter Queue. Event di DLQ masih terlacak, tetapi bukan berarti proses bisnis berhasil — 
 
 14 
 
-keberhasilan proses bisnis dan memerlukan replay atau rekonsiliasi (RabbitMQ/Broadcom Inc., t.t.). 
+pesan tersebut memerlukan replay atau rekonsiliasi (RabbitMQ/Broadcom Inc., t.t.). 
 
 ## **9. Model Stok per Lokasi dan Invariant Bisnis** 
 
-Saldo stok dimodelkan melalui on_hand, reserved, dan available = on_hand - reserved untuk setiap product_id dan location_id. Invariant utama mencakup available tidak negatif; saldo setelah recovery sama dengan test oracle berdasarkan stok awal, mutasi masuk, mutasi keluar, dan kompensasi; satu order hanya memiliki satu pembayaran sah dan satu pemotongan stok final; status final tidak kembali ke pending akibat pesan terlambat; serta setiap Saga mencapai terminal state yang sah. 
+Saldo stok dimodelkan melalui on_hand, reserved, dan available = on_hand - reserved untuk setiap pasangan product_id dan location_id. Invariant utama meliputi: available tidak boleh negatif; saldo setelah recovery harus sama dengan test oracle yang dihitung dari stok awal, mutasi masuk, mutasi keluar, dan kompensasi; satu order hanya memiliki satu pembayaran sah dan satu pemotongan stok final; status final tidak boleh kembali ke pending akibat pesan terlambat; dan setiap Saga harus mencapai terminal state yang sah. 
 
 ## **10. Fault Injection, Recovery, dan Observability** 
 
-Fault injection digunakan untuk menguji perilaku artefak pada titik kegagalan yang ditentukan secara deterministik. Pengamatan tidak berhenti pada keberhasilan retry, tetapi memeriksa keadaan akhir lintas database, outbox, inbox, DLQ, ledger mutasi, dan status Saga berdasarkan correlation_id. Recovery time didefinisikan sebagai durasi sejak fault dihentikan sampai invariant kembali benar, sedangkan read model lag mengukur jeda antara perubahan pada sumber kebenaran dan pembaruan proyeksi. 
+Fault injection menguji perilaku artefak pada titik kegagalan yang ditetapkan secara deterministik. Pengamatan tidak berhenti pada keberhasilan retry, tetapi memeriksa keadaan akhir di seluruh database, outbox, inbox, DLQ, ledger mutasi, dan status Saga berdasarkan correlation_id. Recovery time diukur dari saat fault dihentikan sampai invariant kembali terpenuhi, sedangkan read model lag mengukur jeda antara perubahan pada sumber kebenaran dan pembaruan proyeksi. 
 
 ## **11. Design Science Research Methodology** 
 
-Design Science Research Methodology (DSRM) sesuai untuk penelitian yang menghasilkan sekaligus mengevaluasi artefak. Tahap yang digunakan meliputi identifikasi masalah, penetapan tujuan solusi, perancangan dan 
+Design Science Research Methodology (DSRM) cocok untuk penelitian yang sekaligus menghasilkan dan mengevaluasi artefak. Tahapnya meliputi identifikasi masalah, penetapan tujuan solusi, perancangan dan 
 
 15 
 
-pengembangan, demonstrasi, evaluasi, serta komunikasi (Peffers et al., 2007). Dalam penelitian ini, eksperimen A-B-C ditempatkan pada tahap evaluasi artefak dan bukan diperlakukan sebagai metode yang terpisah dari DSRM. 
+pengembangan, demonstrasi, evaluasi, serta komunikasi (Peffers et al., 2007). Eksperimen A-B-C dalam penelitian ini ditempatkan pada tahap evaluasi artefak, bukan sebagai metode tersendiri di luar DSRM. 
 
 ## **B. Penelitian yang Relevan** 
 
-Penelitian Rochman dan Suartana (2026) mengembangkan sistem manajemen gudang berbasis web dengan event-driven architecture. Studi tersebut relevan karena menunjukkan penggunaan EDA pada aliran persediaan dan menjadi pijakan untuk mempersempit fokus pada konsistensi transaksi lintas layanan dan fault/recovery. 
+Rochman dan Suartana (2026) membangun sistem manajemen gudang berbasis web dengan event-driven architecture. Studi tersebut menunjukkan bahwa EDA dapat digunakan pada aliran persediaan. Penelitian ini memanfaatkan pijakan tersebut untuk mengarahkan fokus ke masalah yang lebih spesifik: konsistensi transaksi lintas layanan dan perilaku sistem saat terjadi kegagalan. 
 
 |**Aspek**|**Rochman &**<br>**Suartana (2026)**|**Penelitian ini**|
 |---|---|---|
@@ -231,17 +231,17 @@ Penelitian Rochman dan Suartana (2026) mengembangkan sistem manajemen gudang ber
 
 
 
-Kontribusi yang ditargetkan adalah evaluasi terukur terhadap kombinasi mekanisme proteksi pada konteks transaksi apotek. Klaim kebaruan tetap dibatasi pada studi yang telah diperiksa; penelusuran literatur yang lebih luas perlu dilengkapi sebelum klaim state of the art dinyatakan final. 
+Kontribusi yang ditargetkan ialah evaluasi terukur terhadap kombinasi mekanisme proteksi pada konteks transaksi apotek. Klaim kebaruan tetap dibatasi pada studi yang telah diperiksa; penelusuran literatur yang lebih luas perlu dilengkapi sebelum klaim state of the art dinyatakan final. 
 
 ## **C. Kerangka Berpikir** 
 
-Kerangka penelitian dimulai dari kondisi operasional Apotek Bisma yang masih menggunakan instance aplikasi dan basis data lokal per cabang serta pencatatan gudang yang belum terintegrasi. Kebutuhan sistem terpusat kemudian dipetakan ke model stok per lokasi dan pemisahan domain Sales, Inventory, Payment, serta Reporting/Notification. Pemisahan database memunculkan risiko baru berupa dual-write, duplicate delivery, konflik stok, dan partial failure. Risiko tersebut menjadi dasar penerapan Transactional Outbox, durable inbox/idempotency, OCC, dan Saga pada Kondisi C. 
+Titik berangkat penelitian ialah kondisi operasional Apotek Bisma yang masih menjalankan aplikasi dan basis data terpisah di setiap cabang, sementara pencatatan gudang belum terintegrasi. Dari kebutuhan sistem terpusat, model stok per lokasi dan pemisahan domain Sales, Inventory, Payment, serta Reporting/Notification diturunkan. Begitu database dipisah per service, risiko baru berupa dual-write, duplicate delivery, konflik stok, dan partial failure muncul. Risiko-risiko tersebut menjadi alasan diterapkannya Transactional Outbox, durable inbox/idempotency, OCC, dan Saga pada Kondisi C. 
 
-Evaluasi dilakukan melalui tiga kondisi setara secara fungsional. Kondisi A menyediakan baseline monolith terpusat, Kondisi B memperlihatkan perilaku naïve EDA 
+Tiga kondisi yang setara secara fungsional kemudian dievaluasi. Kondisi A menyediakan baseline monolith terpusat; Kondisi B memperlihatkan perilaku naïve EDA 
 
 17 
 
-sebelum mekanisme proteksi lengkap, dan Kondisi C menerapkan mekanisme robust. Keempat use case dijalankan pada workload dan fault yang dikendalikan. Data log, database, broker, resource, dan test oracle direkonsiliasi untuk menghasilkan metrik keselamatan data, recovery, convergence lag, latency, throughput, error rate, CPU, dan RAM. Hasil tersebut digunakan untuk menjawab apakah proteksi mencapai invariant yang ditetapkan dan berapa trade-off teknis yang menyertainya. 
+sebelum mekanisme proteksi lengkap ditambahkan; Kondisi C menerapkan mekanisme robust. Keempat use case dijalankan pada workload dan fault yang dikendalikan. Data dari log, database, broker, resource, dan test oracle direkonsiliasi untuk menghasilkan metrik keselamatan data, recovery, convergence lag, latency, throughput, error rate, CPU, dan RAM. Hasilnya digunakan untuk menjawab apakah proteksi yang diterapkan memenuhi invariant yang ditetapkan dan berapa trade-off teknis yang menyertainya. 
 
 |**Tahap Logis**|**Isi**|
 |---|---|
@@ -260,7 +260,7 @@ sebelum mekanisme proteksi lengkap, dan Kondisi C menerapkan mekanisme robust. K
 
 ## **D. Pertanyaan Penelitian** 
 
-Penelitian menggunakan rumusan masalah pada Bab I sebagai pertanyaan penelitian. Hipotesis substantif tambahan tidak ditetapkan karena sasaran keselamatan Kondisi C dirumuskan sebagai kriteria penerimaan deterministik per metrik. Untuk metrik kontinu, pengujian statistik digunakan untuk menilai perbedaan antar kondisi tanpa mengubah target keselamatan data menjadi hipotesis keberhasilan. 
+Rumusan masalah pada Bab I sekaligus berfungsi sebagai pertanyaan penelitian. Hipotesis substantif tambahan tidak ditetapkan karena sasaran keselamatan Kondisi C dirumuskan sebagai kriteria penerimaan deterministik per metrik. Untuk metrik kontinu, pengujian statistik dipakai untuk menilai perbedaan antarkondisi tanpa mengubah target keselamatan data menjadi hipotesis keberhasilan. 
 
 19 
 
@@ -268,7 +268,7 @@ Penelitian menggunakan rumusan masalah pada Bab I sebagai pertanyaan penelitian.
 
 ## **A. Jenis dan Pendekatan Penelitian** 
 
-Penelitian menggunakan DSRM sebagai strategi utama karena menghasilkan dan mengevaluasi artefak perangkat lunak. Pendekatan data utama bersifat kuantitatif melalui eksperimen sistem terkontrol, sedangkan data pengguna digunakan sebagai evaluasi pendukung terhadap kesesuaian alur operasional. Studi kasus Apotek Bisma menyediakan konteks kebutuhan dan batas proses bisnis. Dengan demikian, lima lapis metodologi dipisahkan: DSRM sebagai strategi penelitian, pengembangan prototipe sebagai aktivitas pembangunan artefak, fault injection dan benchmark sebagai metode evaluasi teknis, user testing sebagai evaluasi pengguna, serta statistik deskriptif/inferensial dan audit invariant sebagai teknik analisis. 
+DSRM digunakan sebagai strategi utama karena penelitian ini menghasilkan sekaligus mengevaluasi artefak perangkat lunak. Data utama bersifat kuantitatif dan berasal dari eksperimen sistem terkontrol; data pengguna berfungsi sebagai evaluasi pendukung terhadap kesesuaian alur operasional. Studi kasus Apotek Bisma menyediakan konteks kebutuhan dan batas proses bisnis. Lima lapis metodologi dipisahkan: DSRM sebagai strategi penelitian, pengembangan prototipe sebagai aktivitas pembangunan artefak, fault injection dan benchmark sebagai metode evaluasi teknis, user testing sebagai evaluasi pengguna, serta statistik deskriptif/inferensial dan audit invariant sebagai teknik analisis. 
 
 ## **B. Rancangan Penelitian dan Model Pengembangan Perangkat Lunak** 
 
@@ -352,17 +352,17 @@ Penelitian menggunakan DSRM sebagai strategi utama karena menghasilkan dan menge
 
 ## **C. Tempat dan Waktu Penelitian** 
 
-Pengambilan kebutuhan dan evaluasi pengguna dilakukan pada konteks operasional Apotek Bisma, Kabupaten Mojokerto. Pengembangan dan eksperimen teknis dilakukan pada lingkungan komputasi terkontrol menggunakan Docker Compose. Periode kalender rinci mengikuti jadwal akademik dan akses operasional; rancangan kegiatan disusun dalam 16 minggu dan perlu diselaraskan dengan jadwal bimbingan serta seminar. 
+Pengambilan kebutuhan dan evaluasi pengguna berlangsung di lingkungan operasional Apotek Bisma, Kabupaten Mojokerto. Pengembangan dan eksperimen teknis dilaksanakan pada lingkungan komputasi terkontrol menggunakan Docker Compose. Periode kalender mengikuti jadwal akademik dan akses operasional; kegiatan dirancang dalam 16 minggu dan perlu diselaraskan dengan jadwal bimbingan serta seminar. 
 
 ## **D. Subjek dan Sumber Data Penelitian** 
 
-Sumber data teknis mencakup log k6, log aplikasi, state database Sales/Inventory/Payment, tabel Outbox dan Inbox, data broker/DLQ, timestamp tracing, resource CPU/RAM, serta keluaran skrip rekonsiliasi dan test oracle. Unit eksperimen adalah satu run/blok pengujian yang menerima konfigurasi kondisi, workload, use case, fault, seed, dan titik gangguan tertentu. Ribuan request di dalam satu run tidak 
+Sumber data teknis meliputi log k6, log aplikasi, state database Sales/Inventory/Payment, tabel Outbox dan Inbox, data broker/DLQ, timestamp tracing, pemakaian CPU/RAM, serta keluaran skrip rekonsiliasi dan test oracle. Satu unit eksperimen ialah satu run/blok pengujian yang menerima konfigurasi kondisi, workload, use case, fault, seed, dan titik gangguan tertentu. Ribuan request di dalam satu run tidak 
 
 23 
 
-diperlakukan sebagai ribuan unit independen; request terlebih dahulu diringkas pada tingkat iterasi. 
+diperlakukan sebagai ribuan unit independen; request diringkas terlebih dahulu pada tingkat iterasi. 
 
-Evaluasi pengguna diarahkan pada enam pegawai cabang dan empat pegawai gudang yang berkaitan langsung dengan alur sistem. Jika seluruhnya tersedia, pengujian dilakukan secara sensus terhadap sepuluh pegawai. Jika keterbatasan jadwal tidak memungkinkan, purposive sampling digunakan dengan tetap mewakili setiap cabang dan fungsi gudang, kemudian jumlah peserta serta alasan pemilihannya dilaporkan secara terbuka. User testing menilai kesesuaian alur kerja, bukan menjadi bukti konsistensi data. 
+Evaluasi pengguna melibatkan enam pegawai cabang dan empat pegawai gudang yang berkaitan langsung dengan alur sistem. Jika semuanya tersedia, pengujian bersifat sensus terhadap sepuluh pegawai. Jika jadwal tidak memungkinkan, purposive sampling diterapkan dengan tetap mewakili setiap cabang dan fungsi gudang; jumlah peserta serta alasan pemilihannya dilaporkan secara terbuka. User testing menilai kesesuaian alur kerja, bukan membuktikan konsistensi data. 
 
 ## **E. Variabel dan Definisi Operasional** 
 
@@ -414,33 +414,33 @@ Evaluasi pengguna diarahkan pada enam pegawai cabang dan empat pegawai gudang ya
 
 ## **G. Teknik Pengumpulan Data** 
 
-Sebelum eksperimen utama, database direset menggunakan snapshot dan seed diverifikasi. Sistem menjalani warm-up agar koneksi dan cache berada pada kondisi stabil; data warm-up tidak dimasukkan ke perhitungan. Selama measurement, k6 menghasilkan pola request yang sama untuk kondisi yang dipasangkan. Fault kemudian disuntikkan pada titik deterministik. Setelah fault dihentikan, seluruh komponen dihidupkan kembali dan sistem menunggu recovery window. Producer dihentikan sebelum rekonsiliasi akhir agar keadaan yang diperiksa tidak terus berubah. 
+Sebelum eksperimen utama dimulai, database direset menggunakan snapshot dan seed diverifikasi. Sistem menjalani warm-up agar koneksi dan cache berada pada kondisi stabil; data warm-up tidak dimasukkan ke perhitungan. Selama measurement, k6 menghasilkan pola request yang sama untuk kondisi yang dipasangkan. Fault kemudian disuntikkan pada titik deterministik. Setelah fault dihentikan, seluruh komponen dihidupkan kembali dan sistem menunggu recovery window. Producer dihentikan sebelum rekonsiliasi akhir agar keadaan yang diperiksa tidak terus berubah. 
 
 26 
 
-Setiap run menyimpan kode kondisi, use case, workload, fault, seed, nomor iterasi, correlation_id, timestamp, status order, mutasi stok, pembayaran, event, retry, DLQ, serta resource. Data pengguna dikumpulkan setelah peserta menjalankan tugas sesuai perannya. Informasi operasional awal mengenai Apotek Bisma dikonfirmasi melalui wawancara atau catatan kebutuhan sebelum requirement final dikunci. 
+Setiap run mencatat kode kondisi, use case, workload, fault, seed, nomor iterasi, correlation_id, timestamp, status order, mutasi stok, pembayaran, event, retry, DLQ, dan resource. Data pengguna dikumpulkan setelah peserta menjalankan tugas sesuai perannya. Informasi operasional awal tentang Apotek Bisma dikonfirmasi melalui wawancara atau catatan kebutuhan sebelum requirement final dikunci. 
 
 ## **H. Uji Coba dan Analisis** 
 
 ## **1. Pilot Test dan Penguncian Protokol** 
 
-Konfigurasi awal pilot menggunakan 10 VU untuk beban rendah, 30 VU untuk beban sedang, dan 60 VU untuk beban tinggi, dengan warm-up 60 detik dan measurement 300 detik. Nilai tersebut merupakan konfigurasi awal, bukan hasil akhir. Beban high akan ditetapkan mendekati saturasi yang masih memungkinkan baseline menyelesaikan mayoritas request. Recovery window harus mencakup Saga timeout, seluruh jadwal retry, dan pemrosesan backlog. Convergence SLA, fault point, denominator metrik keselamatan, serta versi konfigurasi dibekukan sebelum eksperimen utama. 
+Konfigurasi awal pilot menetapkan 10 VU untuk beban rendah, 30 VU untuk beban sedang, dan 60 VU untuk beban tinggi, dengan warm-up 60 detik dan measurement 300 detik. Angka-angka ini merupakan konfigurasi awal yang masih dapat berubah. Beban high akan ditetapkan mendekati titik saturasi yang masih memungkinkan baseline menyelesaikan sebagian besar request. Recovery window harus cukup mencakup Saga timeout, seluruh jadwal retry, dan pemrosesan backlog. Convergence SLA, fault point, denominator metrik keselamatan, dan versi konfigurasi dibekukan sebelum eksperimen utama. 
 
 ## **2. Replikasi, Pairing, dan Urutan** 
 
-Setiap kombinasi kondisi, workload, use case, dan fault yang ditetapkan diuji minimal 30 kali setelah pilot. A, B, dan C pada nomor iterasi yang sama menggunakan seed, dataset awal, pola request, dan titik gangguan yang sama sehingga membentuk blok berpasangan. Urutan kondisi diacak atau dirotasi untuk mengurangi bias waktu, suhu mesin, cache, 
+Setiap kombinasi kondisi, workload, use case, dan fault diuji minimal 30 kali setelah pilot. Pada nomor iterasi yang sama, Kondisi A, B, dan C menggunakan seed, dataset awal, pola request, dan titik gangguan yang sama sehingga membentuk blok berpasangan. Urutan kondisi diacak atau dirotasi untuk mengurangi bias waktu, suhu mesin, cache, 
 
 27 
 
-garbage collection, dan proses latar belakang. Angka minimal 30 dipertahankan sebagai keputusan desain draft yang akan dikonfirmasi melalui pilot variance dan kelayakan sumber daya, bukan sebagai jaminan normalitas. 
+garbage collection, dan proses latar belakang. Angka 30 merupakan keputusan desain draft yang akan dikonfirmasi melalui pilot variance dan kelayakan sumber daya, bukan jaminan normalitas. 
 
 ## **3. Analisis Metrik Kontinu** 
 
-Latency, throughput, read model lag, recovery time, CPU, dan RAM diringkas pada tingkat iterasi menggunakan median, IQR, serta p95/p99 sesuai metrik. Karena tiga kondisi dipasangkan dalam blok yang sama, perbandingan utama menggunakan Friedman test. Jika terdapat perbedaan, post-hoc Wilcoxon signed-rank dilakukan untuk A-B, A-C, dan B-C. Koreksi Benjamini-Hochberg diterapkan pada keluarga pengujian yang ditetapkan sebelum eksperimen. Kendall's W dan matched-pairs rank-biserial correlation dilaporkan sebagai effect size. 
+Latency, throughput, read model lag, recovery time, CPU, dan RAM diringkas pada tingkat iterasi menggunakan median, IQR, serta p95/p99 sesuai metrik. Karena ketiga kondisi dipasangkan dalam blok yang sama, perbandingan utama menggunakan uji Friedman untuk menilai perbedaan keseluruhan. Jika perbedaan ditemukan, perbandingan pasangan A-B, A-C, dan B-C dilakukan dengan uji Wilcoxon signed-rank. Nilai p kemudian disesuaikan menggunakan koreksi Benjamini-Hochberg pada keluarga pengujian yang ditetapkan sebelum eksperimen. Kendall's W dan matched-pairs rank-biserial correlation dilaporkan sebagai ukuran efek agar besar perbedaan dapat dibaca bersama nilai p. 
 
 ## **4. Confidence Interval** 
 
-Ketidakpastian median dan p95/p99 dihitung menggunakan bootstrap BCa 95% sebanyak 10.000 resample pada tingkat iterasi. Satu iterasi terlebih dahulu menghasilkan satu nilai ringkasan sehingga request dalam run yang sama tidak dianggap sebagai sampel independen. Histogram, Q-Q plot, dan Shapiro-Wilk dapat digunakan sebagai diagnosis distribusi, tetapi bukan satu-satunya dasar pemilihan uji. 
+Ketidakpastian median dan p95/p99 dihitung dengan bootstrap BCa 95% sebanyak 10.000 resample pada tingkat iterasi. Satu iterasi menghasilkan satu nilai ringkasan terlebih dahulu sehingga request dalam run yang sama tidak dianggap sebagai sampel independen. Histogram, Q-Q plot, dan Shapiro-Wilk dapat dipakai untuk mendiagnosis distribusi, tetapi bukan satu-satunya dasar memilih uji. 
 
 ## **5. Analisis Metrik Keselamatan Data** 
 
@@ -448,7 +448,7 @@ Oversell, lost update, duplicate effect, untraceable event, dan permanent mismat
 
 28 
 
-kejadian selalu dilaporkan bersama denominator yang ditetapkan sebelum eksperimen. Satu pelanggaran membuat Kondisi C tidak memenuhi kriteria penerimaan pada metrik dan konfigurasi tersebut. Jika tidak ditemukan pelanggaran, batas atas interval kepercayaan satu sisi exact binomial 95% tetap dilaporkan untuk menunjukkan keterbatasan daya bukti terhadap kejadian langka. Observasi nol tidak ditafsirkan sebagai probabilitas populasi nol. 
+kejadian selalu dilaporkan bersama denominator yang ditetapkan sebelum eksperimen. Satu pelanggaran saja membuat Kondisi C tidak memenuhi kriteria penerimaan pada metrik dan konfigurasi tersebut. Apabila tidak ditemukan pelanggaran, batas atas interval kepercayaan satu sisi exact binomial 95% tetap dilaporkan untuk menunjukkan keterbatasan daya bukti terhadap kejadian langka. Observasi nol tidak ditafsirkan sebagai probabilitas populasi nol. 
 
 ## **6. Kriteria Penerimaan** 
 
@@ -469,11 +469,11 @@ kejadian selalu dilaporkan bersama denominator yang ditetapkan sebelum eksperime
 
 ## **7. Evaluasi Pengguna** 
 
-Data task completion, waktu, kesalahan, Likert, dan komentar dibaca per peran dan tugas. Karena populasi operasional kecil dan tujuan utamanya adalah validasi 
+Data task completion, waktu, kesalahan, Likert, dan komentar dibaca per peran dan tugas. Karena populasi operasional kecil dan tujuan utamanya ialah menilai 
 
 29 
 
-kesesuaian alur, hasil pengguna dilaporkan secara deskriptif dengan denominator yang jelas. Data tersebut tidak digunakan untuk mengklaim konsistensi teknis atau generalisasi ke populasi pengguna apotek secara luas. 
+kesesuaian alur kerja, hasil pengguna dilaporkan secara deskriptif dengan denominator yang jelas. Data tersebut tidak dipakai untuk mengklaim konsistensi teknis atau menggeneralisasi ke populasi pengguna apotek secara luas. 
 
 ## **I. Jadwal Penelitian** 
 

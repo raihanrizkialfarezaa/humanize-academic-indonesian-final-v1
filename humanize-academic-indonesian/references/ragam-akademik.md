@@ -16,6 +16,34 @@
 
 Tulis untuk pembaca bidang yang membutuhkan ketepatan, bukan kemegahan. Gunakan bahasa formal, tetapi jangan menyamakan formalitas dengan kalimat panjang, nominalisasi, atau kosakata langka.
 
+### 1.1 Register formal
+
+Ganti kata ragam percakapan dengan padanan ragam tulis formal. Pertahankan bentuk percakapan hanya dalam kutipan langsung, verbatim narasumber, atau konteks yang sengaja memerlukan register tersebut.
+
+| Ragam percakapan | Padanan formal | Catatan |
+| --- | --- | --- |
+| `bisa` | `dapat` | `bisa` lazim dalam ragam lisan; `dapat` standar di naskah ilmiah |
+| `lewat` | `melalui` | `lewat` dapat berarti 'melampaui waktu'; `melalui` lebih presisi untuk makna 'dengan perantaraan' |
+| `kayak`, `sepertinya` | `tampaknya`, `seolah-olah`, `seperti` | `seperti` tetap formal; `sepertinya` dan `kayak` bersifat percakapan |
+| `bikin` | `membuat`, `menyebabkan` | |
+| `nggak`, `gak`, `tak` (ragam lisan) | `tidak` | `tak` sah dalam puisi/sastra tetapi jarang di prosa akademik |
+| `udah` | `sudah` | |
+| `aja` | `saja` | |
+| `banget` | `sangat`, `amat` | |
+| `emang` | `memang` | |
+| `gimana` | `bagaimana` | |
+| `kenapa` | `mengapa` | |
+| `kalo` | `jika`, `apabila` | |
+| `cuma` | `hanya` | |
+| `soalnya` | `karena`, `sebab` | |
+| `terus` (konjungsi lisan) | `kemudian`, `selanjutnya`, `lalu` | `terus` sah jika bermakna 'berkelanjutan' |
+| `dikasih` | `diberikan` | |
+| `ngomong` | `menyatakan`, `menjelaskan` | |
+
+Daftar ini bukan daftar larangan. Kemunculan tunggal dalam konteks tertentu mungkin sah; yang perlu dihindari ialah penggunaan konsisten kata ragam percakapan di seluruh naskah akademik.
+
+Perhatikan juga bahwa `sudah` dan `telah` sama-sama formal. Pilih berdasarkan konteks: `telah` cenderung lebih formal dan lazim di prosa akademik, tetapi `sudah` tetap sah dan tidak perlu diganti secara mekanis.
+
 Utamakan tujuh sifat berikut:
 
 1. **Jelas**: pembaca dapat mengenali pelaku atau fokus, tindakan, objek, dan hubungan logis.
