@@ -1,293 +1,243 @@
 ---
-description: Humanize end-to-end naskah akademik Indonesia untuk skripsi S1 Teknik Informatika dengan audit makna, teknis, retoris, dan sidang-ready.
+description: Humanize naskah akademik Indonesia — rekonstruksi prosa dari proposisi, bukan sekadar koreksi ejaan.
 ---
 
-Jalankan proses humanize akademik Indonesia end-to-end untuk input pengguna berikut.
+# Perintah
+
+Humanize naskah akademik Indonesia berikut secara end-to-end. **Rekonstruksi prosa dari proposisi dan jangkar konkret** — BUKAN sekadar memperbaiki typo atau mengganti sinonim pada cetakan kalimat asli.
 
 Input pengguna:
 
 $ARGUMENTS
 
-## Tujuan
+---
 
-Hasil akhir harus menjadi naskah akademik Indonesia yang:
+# FASE 0 — Muat referensi wajib
 
-- formal;
-- jelas;
-- wajar untuk mahasiswa S1 Teknik Informatika;
-- tidak terlalu formulaik;
-- tidak terlalu profesional atau over-polished;
-- teknisnya tetap terlacak;
-- siap dipertanggungjawabkan saat sidang;
-- tidak mengubah makna, angka, sitasi, istilah teknis, atau batas klaim.
+Kamu HARUS membaca file-file berikut sebelum menulis satu kalimat pun. Baca setiap file secara penuh menggunakan tool Read. Jangan skip. Jangan ringkas. Jangan mengandalkan ingatan.
 
-## Deteksi Mode Otomatis
+**Wajib dibaca (urut):**
 
-Tentukan mode dari input pengguna:
+1. `SKILL.md` — kontrak induk; ikuti alur 9 langkah di dalamnya.
+2. `references/pola-bahasa-ai-indonesia.md` — katalog pola formulaik AI; gunakan untuk diagnosis.
+3. `references/ragam-akademik.md` — register formal, fungsi bagian, kekuatan klaim, suara penulis.
+4. `references/qa-dan-integritas.md` — hierarki keputusan, audit makna, angka, sitasi.
+5. `references/keterbacaan-akademik.md` — kalibrasi pembaca, klasifikasi istilah, eksplisitasi aman.
+6. `references/residu-retoris-akademik.md` — deteksi residu retoris, kewajaran S1 TI.
+7. `references/contoh-uji-retoris-s1-ti.md` — bank contoh: terlalu formulaik / wajar / terlalu profesional / rusak makna.
 
-- Jika pengguna meminta `audit`, `review`, `cek`, `analisis`, `nilai`, `status`, atau `sudah natural belum`, lakukan audit lengkap.
-- Jika pengguna meminta `revisi`, `rewrite`, `parafrase`, `humanize`, `rapikan`, `buat lebih natural`, atau memberi teks tanpa instruksi jelas, lakukan audit singkat lalu revisi.
-- Jika pengguna meminta `checker`, `rule`, `metrik`, `PASS`, `REVIEW`, atau `FAIL`, gunakan mode checker.
-- Jika pengguna meminta `sidang`, `dosen penguji`, `skripsi`, atau `S1 TI`, aktifkan mode sidang-ready.
-- Jika input ambigu, lakukan mode default: audit singkat, revisi aman, dan catatan risiko.
+**Wajib dibaca jika naskah membahas sistem, arsitektur, kode, basis data, endpoint, pengujian, atau performa:**
 
-## Pemakaian Seluruh Aset Project
+8. `references/informatika-akademik.md` — audit teknis Informatika, kontrak pembaca ganda.
 
-Gunakan aset project secara adaptif, bukan membaca semua file secara membabi buta. Setiap aset memiliki fungsi berikut:
+**Opsional (baca jika dibutuhkan):**
 
-| Aset | Fungsi |
-| :--- | :--- |
-| `SKILL.md` | kontrak induk humanisasi akademik, alur wajib, integritas, validator, bentuk keluaran |
-| `references/qa-dan-integritas.md` | gerbang kesetiaan makna, audit angka/sitasi, delta makna, detektor AI, sidang-ready |
-| `references/ragam-akademik.md` | ragam akademik per bagian, klaim, aktif/pasif, posisi studi terdahulu, suara penulis |
-| `references/keterbacaan-akademik.md` | kalibrasi pembaca, beban istilah, eksplisitasi aman, keterbacaan teknis |
-| `references/informatika-akademik.md` | sistem, arsitektur, basis data, endpoint, event, metrik, performa, detail teknis Informatika |
-| `references/pola-bahasa-ai-indonesia.md` | diagnosis pola formulaik, transisi mekanis, interferensi Inggris, positif palsu |
-| `references/residu-retoris-akademik.md` | audit residu retoris, S1 TI naturalness, over-polish guard |
-| `references/checker-metriks-retoris.md` | rule checker, status `PASS/INFO/REVIEW/FAIL`, S1TI rules, technical guard |
-| `references/contoh-uji-retoris-s1-ti.md` | bank contoh terlalu formulaik, wajar S1 TI, terlalu profesional, rusak makna |
-| `references/contoh-transformasi.md` | contoh transformasi berbasis ledger fakta lintasbidang |
-| `references/pertahanan-parafrase-adversarial.md` | guard saat pengguna menyebut detektor AI, humanizer, skor, atau pengelabuan |
-| `references/landasan.md` | landasan EYD/KBBI, riset deteksi AI, kebijakan integritas, keterbatasan vendor |
-| `scripts/validate_rewrite.py` | validator deterministik jika tersedia pasangan naskah asli dan revisi |
-| `scripts/test_validate_rewrite.py` | regression awareness saat mengembangkan atau mengecek validator |
-| `agents/openai.yaml` | metadata packaging/agent, bukan sumber bahasa harian |
-| `assets/icon.svg` | ikon packaging/UI, bukan sumber analisis naskah |
+9. `references/contoh-transformasi.md` — jika pola revisi belum jelas.
+10. `references/checker-metriks-retoris.md` — jika diminta audit checker/metrik.
+11. `references/pertahanan-parafrase-adversarial.md` + `references/landasan.md` — jika pengguna menyebut detektor AI.
 
-## Referensi Baseline
+⚠️ **CHECKPOINT**: Jika kamu belum membaca minimal file 1–7, BERHENTI dan baca sekarang. Jangan lanjut ke Fase 1.
 
-Untuk tugas humanize umum, gunakan baseline berikut:
+---
 
-- `SKILL.md`
-- `references/qa-dan-integritas.md`
-- `references/ragam-akademik.md`
-- `references/keterbacaan-akademik.md`
-- `references/pola-bahasa-ai-indonesia.md`
-- `references/residu-retoris-akademik.md`
-- `references/checker-metriks-retoris.md`
-- `references/contoh-uji-retoris-s1-ti.md`
+# FASE 1 — Analisis naskah
 
-Gunakan referensi kondisional berikut sesuai pemicu:
+Setelah semua referensi dimuat, analisis naskah input:
 
-- `references/informatika-akademik.md` jika ada sistem, aplikasi, arsitektur, basis data, kode, endpoint, event, algoritma, pengujian, atau performa.
-- `references/contoh-transformasi.md` jika pola revisi belum jelas atau butuh pembanding lintas kasus.
-- `references/pertahanan-parafrase-adversarial.md` dan `references/landasan.md` jika pengguna menyebut Turnitin, AI detector, skor, humanizer, atau pengelabuan.
-- `scripts/validate_rewrite.py` jika ada pasangan naskah asli dan revisi dalam file teks.
-- `scripts/test_validate_rewrite.py` hanya untuk konteks pengembangan validator.
-- `agents/openai.yaml` dan `assets/icon.svg` hanya untuk konteks packaging/integrasi.
+1. **Identifikasi struktur**: Bab berapa? Bagian apa (pendahuluan, kajian pustaka, metode, hasil, pembahasan, kesimpulan, abstrak, proposal)? Berapa paragraf?
+2. **Tentukan pembaca**: Default = akademik lintas bidang. Jika Informatika, gunakan kontrak pembaca ganda (audiens seminar + penguji teknis).
+3. **Buat daftar cakupan**: Tandai setiap bagian/paragraf sebagai `belum diproses`. Pastikan tidak ada yang terlewat di akhir.
+4. **Kunci elemen terlindungi**: Catat semua angka, satuan, tanggal, sampel, nilai statistik, rumus, parameter, versi, arah perubahan, sitasi, pasangan klaim–sitasi, kutipan langsung, istilah teknis, singkatan, nama metode, endpoint, event, variabel, konfigurasi, tabel, gambar, rujukan silang, kode, daftar pustaka, negasi, syarat, batas klaim. JANGAN mengubah elemen ini.
+5. **Pisahkan elemen non-parafrase**: Tabel, rumus, kode, daftar pustaka, kutipan langsung, dan elemen yang tidak boleh diparafrase bebas harus dipertahankan apa adanya.
+6. **Klasifikasikan istilah** (ikuti `keterbacaan-akademik.md`):
+   - `wajib dipertahankan`: nama resmi metode, konstruk, algoritma, metrik
+   - `dipertahankan lalu dijelaskan`: istilah teknis pada kemunculan penting pertama
+   - `dapat diberi padanan`: unsur Inggris umum yang punya padanan Indonesia mapan
+   - `unsur Inggris yang tidak diperlukan`: kata Inggris non-teknis yang bisa diganti
+   - `label/kode`: identifier, nama kolom, endpoint — pertahankan apa adanya
+   Dahulukan tujuan, relasi, atau pertanyaan sebelum rangkaian nama metode jika pembaca belum punya orientasi. Bedakan eksplisitasi definisional yang aman dari alasan metodologis, mekanisme, atau asumsi baru yang memerlukan sumber.
 
-## Pipeline End-to-End
+---
 
-Ikuti urutan ini:
+# FASE 2 — Kunci proposisi (ledger internal)
 
-1. Identifikasi jenis teks: Bab 1, Bab 2, Bab 3, Bab 4, Bab 5, abstrak, metode, hasil, pembahasan, kajian pustaka, proposal, laporan, atau paragraf umum.
-2. Tentukan pembaca: pakar, pembaca disiplin, akademik lintas bidang, atau umum. Default untuk skripsi S1 TI adalah akademik lintas bidang dengan kontrak pembaca ganda Informatika.
-3. Catat elemen terlindungi:
-   - angka;
-   - satuan;
-   - sitasi;
-   - istilah teknis;
-   - nama metode;
-   - nama algoritma;
-   - endpoint;
-   - event;
-   - variabel;
-   - label;
-   - konfigurasi;
-   - negasi;
-   - syarat;
-   - batas klaim.
-4. Audit kesetiaan makna dengan `references/qa-dan-integritas.md`.
-5. Audit identitas teknis Informatika dengan `references/informatika-akademik.md` jika relevan.
-6. Audit ragam akademik dan fungsi bagian dengan `references/ragam-akademik.md`.
-7. Audit keterbacaan dengan `references/keterbacaan-akademik.md`.
-8. Audit pola formulaik dengan `references/pola-bahasa-ai-indonesia.md`.
-9. Audit residu retoris dengan `references/residu-retoris-akademik.md`.
-10. Jika diminta checker/metrik, terapkan `references/checker-metriks-retoris.md`.
-11. Cocokkan hasil dengan `references/contoh-uji-retoris-s1-ti.md` agar tidak terlalu formulaik, terlalu profesional, atau rusak makna.
-12. Gunakan `references/contoh-transformasi.md` jika perlu contoh pembanding berbasis ledger fakta.
-13. Jika user membahas detektor AI, gunakan `references/pertahanan-parafrase-adversarial.md` dan `references/landasan.md`; jangan menjanjikan skor atau label manusia.
-14. Jika tersedia original dan revisi dalam file teks, gunakan validator sebagai alarm, bukan bukti final.
-15. Jalankan sidang-ready check sebelum memberi output.
+Untuk setiap paragraf, bangun ledger internal (jangan tampilkan ke pengguna):
 
-## Prioritas Mutlak
+- Pelaku/sumber → tindakan → objek → penerima
+- Polaritas, modalitas, kekuatan epistemik
+- Waktu, urutan, syarat, pengecualian, cakupan
+- Angka, satuan, parameter, versi, arah perubahan
+- Pasangan klaim–sitasi
+- Status: data, interpretasi, pendapat sumber, asumsi, sasaran, atau rekomendasi
+- Asal detail teknis: naskah, kode, tabel, sumber, atau belum tersedia
 
-1. Jangan mengubah makna.
-2. Jangan mengubah angka, satuan, sitasi, atau data.
-3. Jangan mengubah istilah teknis, nama metode, endpoint, event, variabel, label, atau konfigurasi.
-4. Jangan menambah detail teknis yang tidak tersedia.
-5. Jangan menaikkan klaim.
-6. Jangan mengubah rencana/proposal menjadi hasil.
-7. Jangan menjanjikan lolos detektor AI.
-8. Jangan menyatakan teks pasti manusia atau pasti AI.
-9. Jangan menambahkan kesalahan buatan agar terlihat manusiawi.
-10. Jangan membuat teks terlalu profesional untuk skripsi S1 TI.
+---
 
-## Kalibrasi S1 Teknik Informatika
+# FASE 3 — Diagnosis pola formulaik
 
-Pertahankan jika wajar dan tidak berlebihan:
+Gunakan `pola-bahasa-ai-indonesia.md` dan `residu-retoris-akademik.md` untuk mendiagnosis:
 
-- `penelitian ini`;
-- `sistem ini`;
-- `aplikasi ini`;
-- `pengujian dilakukan`;
-- `hasil pengujian menunjukkan`;
-- `sistem dirancang`;
-- `data dikumpulkan`;
-- istilah inti seperti `sistem`, `aplikasi`, `data`, `fitur`, `pengujian`, `hasil`, `pengguna`, `admin`, `petugas`.
+- Gugus formulaik (bukan kata tunggal): rentetan pembuka generik, transisi dekoratif, tumpukan abstraksi sebelum informasi konkret
+- Register informal yang lolos: `bisa` → `dapat`, `lewat` → `melalui`, dsb. (lihat tabel §1.1 ragam-akademik.md)
+- Simbol khas AI yang lolos: em dash `—`, en dash `–`, smart quotes `""''`, elipsis `…`, bullet `•`, dsb. (lihat tabel §8.5 pola-bahasa-ai-indonesia.md) — ganti dengan padanan konvensional Indonesia
+- Klaim tanpa metrik/bukti: `efektif`, `optimal`, `akurat`, `signifikan` tanpa data pendukung
+- Penutup optimistis generik, sintesis pustaka semu, simpulan mini berulang
+- Struktur kalimat seragam karena cetakan sama (bukan karena fungsi ilmiahnya sama)
 
-Jangan mengganti istilah inti secara bergilir hanya untuk variasi.
+Uji keterpindahan: jika paragraf masih masuk akal pada topik lain setelah dua istilah diganti, paragraf itu terlalu generik → konkretkan.
 
-Contoh yang harus dihindari:
+---
 
-- `sistem` -> `platform` -> `solusi` -> `ekosistem`;
-- `pengujian` -> `evaluasi` -> `validasi` -> `asesmen`;
-- `hasil pengujian` -> `temuan empiris` jika sumbernya sederhana.
+# FASE 4 — Rekonstruksi dari fungsi
 
-## Klaim yang Harus Dijaga
+**INI ADALAH INTI PEKERJAAN. Bukan mengoreksi typo. Bukan mengganti sinonim. Bukan memoles permukaan.**
 
-Tinjau klaim berikut:
+Untuk setiap paragraf, rekonstruksi dengan cara:
 
-- `efektif`;
-- `efisien`;
-- `optimal`;
-- `akurat`;
-- `andal`;
-- `aman`;
-- `signifikan`;
-- `lebih cepat`;
-- `berhasil`;
-- `sesuai harapan`.
+1. **Tentukan pekerjaan paragraf** dalam argumen keseluruhan.
+2. **Identifikasi klaim inti** yang harus terbaca paling jelas.
+3. **Gunakan jangkar konkret** yang sudah ada: objek, pelaku, mekanisme, kondisi, data, hasil.
+4. **Susun kalimat baru** dari proposisi dan hubungan logis yang telah dikunci — bukan dari cetakan kalimat asli.
+5. **Pilih subjek berdasarkan fokus informasi**; gunakan aktif/pasif secara fungsional.
+6. **Majukan pembeda, mekanisme, kondisi uji, atau hasil** jika sumber sudah menyediakannya.
+7. **Gabungkan** kalimat yang memecah satu proposisi; **pecah** kalimat yang memiliki beberapa pusat informasi.
+8. **Pangkas** abstraksi kosong, transisi dekoratif, bingkai generik — ganti dengan pelaku, tindakan, objek, bukti.
+9. **Ganti register informal** dengan padanan formal (tabel §1.1 ragam-akademik.md).
+10. **Akhiri paragraf** pada konsekuensi analitis yang didukung, bukan penutup optimistis.
+11. **Pertahankan nama metode**, lalu jelaskan fungsi, objek, atau cara membaca hasilnya secara lokal bila diperlukan pembaca sasaran.
+12. **Berikan satu tindakan metodologis** atau satu hubungan konseptual utama per kalimat jika tumpukan istilah membebani pembaca.
 
-Klaim tersebut harus punya metrik, skenario, tabel, data, pembanding, atau batas. Jika tidak ada, turunkan menjadi bentuk yang lebih aman.
+**Yang TIDAK boleh dilakukan:**
+- Mempertahankan sintaks asli dan hanya mengganti 1-2 kata (ini bukan humanisasi)
+- Menambah fakta, contoh, mekanisme, atau sumber yang tidak ada di naskah
+- Menaikkan klaim (`berkaitan` → `menyebabkan`, `mengindikasikan` → `membuktikan`)
+- Mengubah sasaran proposal menjadi hasil yang sudah tercapai
+- Mengganti istilah inti secara bergilir (`sistem` → `platform` → `solusi` → `ekosistem`)
+- Menerjemahkan semua istilah asing secara buta
+- Mengubah semua pasif menjadi aktif
+- Menambah endpoint, versi, nama kolom, event, konfigurasi, atau alasan metode yang tidak ada di sumber
+- Memakai istilah terlalu matang (`implikasi epistemik`, `konstruksi analitis`) kecuali sumber menuntut
 
-## Status Checker
+---
 
-Gunakan status berikut jika mode audit/checker:
+# FASE 4b — Cocokkan suara penulis
 
-- `PASS`: aman.
-- `INFO`: pola muncul tetapi wajar.
-- `REVIEW`: perlu ditinjau atau direvisi.
-- `FAIL`: merusak makna, istilah, bukti, atau klaim.
+Ikuti protokol pencocokan suara dari `ragam-akademik.md` §9:
 
-## Validator sebagai Alarm
+1. **Jika tersedia sampel sah** dari penulis (sekurang-kurangnya 3 paragraf utuh / ~300 kata dari bagian akademik yang benar-benar ditulis penulis): petakan kecenderungan stabil — cara menjelaskan, memberi batas, memperkenalkan bukti, panjang unit informasi, kadar eksplisit. Terapkan secara selektif tanpa meniru kesalahan.
+2. **Jika sampel tidak tersedia**: gunakan suara akademik netral dan pertahankan kecenderungan naskah yang tidak bermasalah. Jangan mengarang ciri personal.
 
-Jika tersedia naskah asli dan revisi sebagai file teks, rencanakan atau jalankan validator sesuai konteks. Untuk skripsi Informatika dengan gaya impersonal, bentuk perintahnya:
+Keluarkan kutipan langsung, daftar pustaka, definisi resmi, dan teks yang diketahui bukan tulisan penulis dari sampel acuan.
 
-```text
-python scripts/validate_rewrite.py original.txt revised.txt --audience lintas-bidang --domain informatika --voice impersonal --strict
-```
+---
 
-Jangan menjalankan validator jika pengguna hanya memberi satu teks, jika file tidak tersedia, atau jika perintah akan menulis/mengubah file. Hasil validator adalah alarm; `PASS` tidak membuktikan kesetaraan semantik lengkap.
+# FASE 5 — Tiga gerbang penerimaan
 
-## Output Default
+Sebelum menyerahkan output, jalankan tiga gerbang ini secara berurutan:
 
-Jika pengguna memberi teks dan meminta humanize/revisi, keluarkan:
+### Gerbang 1: Kesetiaan (harus lulus pertama)
+- Setiap klausa revisi dapat ditelusuri ke sumber
+- Pelaku, objek, polaritas, modalitas, waktu, syarat, cakupan, atribusi, dan praanggapan tetap setara
+- Angka, satuan, rumus, sitasi, kutipan, serta penanda silang tetap melekat pada klaim yang benar
+- Detail teknis baru dapat ditelusuri ke bahan pengguna dan tidak muncul hanya untuk membuat teks lebih konkret
+- Tidak ada penguatan bukti, kausalitas baru, generalisasi, atau fakta tambahan
 
-```text
-Versi revisi:
-...
+### Gerbang 2: Kewajaran retoris
+- Klaim utama tidak tertunda oleh bingkai generik
+- Tiap paragraf punya pekerjaan jelas dan jangkar konkret
+- Tidak ada rantai subjek metadiskursif atau transisi mekanis yang tidak diperlukan
+- Pembeda penelitian menyebut sumbu nyata
+- Rujukan memiliki anteseden tunggal
+- Variasi struktur mengikuti variasi fungsi, bukan pengacakan
 
-Catatan perubahan:
-- ...
+### Gerbang 3: Keterbacaan
+- Pembaca memperoleh orientasi sebelum tumpukan istilah atau rincian
+- Singkatan dan istilah penting diperkenalkan pada kemunculan yang menentukan
+- Nama metode memiliki fungsi atau cara membaca yang cukup bagi pembaca sasaran
+- Campuran Indonesia–Inggris hanya dipertahankan untuk nama resmi, kode, atau istilah yang lebih tepat
+- Penjelasan tambahan dapat ditelusuri dan tidak mengarang alasan, mekanisme, asumsi, atau hasil
+- Pakar masih dapat merekonstruksi metode, parameter, syarat, dan batas inferensi
 
-Risiko/verifikasi:
-- ...
-```
+**Resolusi konflik**: Jika gerbang bertentangan, pertahankan kesetiaan. Perbaiki kewajaran dan keterbacaan tanpa membuka ledger fakta; jika itu tidak mungkin, beri catatan.
 
-Jika tidak ada risiko/verifikasi, tulis `Tidak ada catatan verifikasi penting.`
-
-## Output Audit
-
-Jika pengguna meminta audit/review, keluarkan:
-
-```text
-Status:
-...
-
-Temuan utama:
-- ...
-
-Risiko makna/teknis:
-- ...
-
-Risiko retoris:
-- ...
-
-Kewajaran S1 TI:
-- ...
-
-Saran:
-- ...
-
-Contoh revisi:
-...
-```
-
-## Output Checker
-
-Jika pengguna meminta checker/metrik/rule, keluarkan:
-
-```text
-Rule:
-Status:
-Evidence:
-Rationale:
-Suggested action:
-Protected terms:
-```
-
-## Output Validasi Original vs Revisi
-
-Jika pengguna memberi original dan revisi, keluarkan:
-
-```text
-Status validasi:
-Fidelity:
-Style:
-Accessibility:
-Temuan kritis:
-Tindakan lanjutan:
-```
-
-## Sidang-Ready Check
-
-Sebelum final, pastikan jawaban tidak membuat penulis kesulitan menjawab:
-
+### Sidang-ready check
+Pastikan mahasiswa bisa menjawab pertanyaan berikut dari naskah revisi:
 - Apa yang dibuat atau diuji?
 - Data, fitur, atau skenario mana yang dibahas?
-- Metode, diagram, framework, endpoint, atau algoritma apa yang digunakan?
+- Metode, endpoint, atau algoritma apa yang digunakan?
 - Hasil mana yang mendukung klaim?
-- Apakah klaim evaluatif punya metrik atau skenario?
 - Apa batas penelitian?
-- Apa pembeda dari penelitian terdahulu?
-- Apakah istilah teknis masih bisa ditelusuri?
 
-Jika ada informasi yang tidak tersedia, jangan mengarang. Beri catatan `[PERLU VERIFIKASI: ...]` jika perlu.
+Jika info tidak tersedia, jangan mengarang. Beri catatan `[PERLU VERIFIKASI: ...]`.
 
-## Larangan Revisi
+### Audit format dan cakupan
+- Pastikan seluruh bagian dalam daftar cakupan telah berstatus `diproses`.
+- Pertahankan Markdown, LaTeX, nomor persamaan, tabel, daftar, catatan kaki, sitasi, dan rujukan silang.
+- Jangan memindahkan teks melewati tabel, gambar, atau batas bagian jika hubungan rujukannya dapat berubah.
 
-Jangan:
+### Validator (opsional)
+Jika tersedia naskah asli dan revisi dalam file teks, jalankan validator sebagai alarm:
+```
+python scripts/validate_rewrite.py original.txt revised.txt --audience lintas-bidang --domain informatika --voice impersonal --strict
+```
+Hasil validator adalah alarm, bukan bukti kesetaraan semantik lengkap. Jangan jalankan jika file tidak tersedia.
 
-- menerjemahkan semua istilah asing secara buta;
-- mengubah semua pasif menjadi aktif;
-- menghapus semua frasa skripsi yang wajar;
-- menambah endpoint, versi, nama kolom, event, konfigurasi, alasan metode, atau mekanisme;
-- memakai istilah terlalu matang seperti `implikasi epistemik`, `konstruksi analitis`, atau `validitas eksternal` kecuali sumber menuntutnya;
-- mengubah `uji Friedman` menjadi `uji statistik`;
-- mengubah `latensi p95` menjadi `kecepatan sistem`;
-- mengubah `wawancara semi-terstruktur` menjadi `wawancara`;
-- menghapus hasil nol, negasi, syarat, atau pengecualian.
+---
 
-## Prinsip Final
+# FASE 6 — Output
 
-Lebih baik revisi minimal tetapi setia daripada revisi indah yang mengubah makna.
+## Untuk naskah panjang (lebih dari ~10 paragraf)
 
-Target akhir adalah teks yang:
+Proses per bagian/bab. Untuk setiap bagian:
 
-- wajar untuk skripsi S1 Teknik Informatika;
-- jelas bagi dosen penguji;
-- tidak berlebihan;
-- tetap akademik;
-- tetap teknis;
-- dan dapat dipertanggungjawabkan.
+1. Tampilkan judul bagian yang diproses.
+2. Tampilkan naskah revisi lengkap untuk bagian itu.
+3. Setelah semua bagian selesai, berikan catatan perubahan dan risiko di akhir.
+
+## Untuk naskah pendek
+
+Keluarkan naskah revisi lengkap. Tambahkan catatan singkat setelah naskah **hanya jika** ada bagian yang perlu diverifikasi, konflik sumber, perubahan struktural penting, atau batas format:
+
+```
+[Naskah revisi lengkap]
+
+Catatan (jika ada):
+- ...
+```
+
+Jangan menampilkan draf perantara, daftar "ciri AI", skor kealamian, atau ledger internal.
+
+## Jika pengguna meminta audit/review (bukan revisi)
+
+```
+Status: ...
+Temuan utama: ...
+Risiko makna/teknis: ...
+Risiko retoris: ...
+Kewajaran S1 TI: ...
+Saran: ...
+Contoh revisi: ...
+```
+
+---
+
+# GUARD — Self-check sebelum output
+
+Sebelum mengirim output, jawab pertanyaan ini secara internal:
+
+1. **Apakah prosa benar-benar direkonstruksi dari proposisi, atau hanya typo yang diperbaiki?** Jika hanya typo → GAGAL. Ulangi Fase 4.
+2. **Apakah semua paragraf sudah berstatus `diproses`?** Jika ada yang terlewat → proses sekarang.
+3. **Apakah ada kata ragam percakapan (`bisa`, `lewat`, `kayak`, `bikin`, `nggak`, `cuma`, `soalnya`, dll.) yang lolos?** Jika ya → ganti padanan formal.
+4. **Apakah ada simbol khas AI (`—`, `–`, `…`, `""''`, `•`, `→`) yang lolos?** Jika ya → ganti padanan konvensional Indonesia.
+5. **Apakah ada klaim evaluatif tanpa metrik/bukti?** Jika ya → turunkan.
+6. **Apakah ada elemen terlindungi yang berubah?** Jika ya → kembalikan.
+
+Jika semua jawaban aman, kirim output.
+
+---
+
+# Prinsip
+
+- Lebih baik rekonstruksi setia daripada poles permukaan yang mengubah makna.
+- Kealamian akademik berasal dari kepadatan informasi dan keputusan retoris, bukan dari sinonim acak atau kalimat pendek.
+- Target: wajar untuk skripsi S1 TI, jelas bagi dosen penguji, tidak berlebihan, tetap akademik, tetap teknis, dapat dipertanggungjawabkan.

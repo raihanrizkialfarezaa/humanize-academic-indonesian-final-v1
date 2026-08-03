@@ -492,6 +492,33 @@ Pertahankan penebalan, tanda pisah, titik dua, dan tanda kurung sesuai fungsi. J
 
 Hapus `Berikut adalah`, `Tentu`, `Semoga membantu`, `Jika Anda ingin`, atau ajakan lain yang berasal dari percakapan, kecuali teks memang berupa komunikasi kepada pembaca.
 
+### 8.5 Simbol dan tanda baca khas keluaran AI
+
+Model bahasa sering menyisipkan karakter tipografis Unicode yang bukan konvensi penulisan akademik Indonesia. Karakter ini menjadi sinyal proses otomatis karena penulis Indonesia biasanya tidak mengetik simbol tersebut secara langsung.
+
+| Simbol AI | Nama | Padanan konvensional Indonesia | Catatan |
+| --- | --- | --- | --- |
+| `—` (U+2014) | em dash | tanda pisah EYD (`--`), koma, titik dua, atau kalimat baru | EYD V menggunakan tanda pisah (dua tanda hubung) untuk keterangan penyeling, bukan em dash Unicode. Dalam naskah akademik Indonesia, `—` hampir tidak pernah diketik penulis secara manual |
+| `–` (U+2013) | en dash | tanda hubung `-` atau `sampai dengan` (s.d.) | En dash lazim di tipografi Inggris untuk rentang (2020–2025); EYD menggunakan tanda hubung atau kata `sampai dengan` |
+| `…` (U+2026) | horizontal ellipsis | `...` (tiga titik biasa) | Penulis Indonesia mengetik tiga titik, bukan karakter elipsis tunggal |
+| `'` `'` (U+2018, U+2019) | smart single quotes | `'` (apostrof lurus) | Kutipan tunggal dalam EYD menggunakan tanda petik lurus |
+| `"` `"` (U+201C, U+201D) | smart double quotes | `"` (tanda petik lurus) | Kutipan dalam EYD menggunakan tanda petik lurus `"..."` |
+| `•` (U+2022) | bullet | tanda hubung `-` atau penomoran | Naskah akademik Indonesia menggunakan daftar bernomor atau tanda hubung, bukan simbol bullet |
+| `→` (U+2192) | right arrow | kata `menjadi`, `menghasilkan`, `ke`, atau kalimat | Kecuali dalam diagram alur, rumus, atau notasi teknis yang memang memerlukan panah |
+| `⟶` (U+27F6) | long right arrow | sama dengan `→` di atas | |
+| `✓` `✗` `✔` `✘` | check/cross marks | `ya`/`tidak`, `lulus`/`gagal`, atau kolom tabel | Kecuali dalam tabel yang memang menggunakan simbol centang/silang |
+| `©` `®` `™` | copyright, registered, trademark | hapus jika tidak relevan secara hukum | Tidak lazim di naskah akademik kecuali pada konteks kekayaan intelektual |
+| `≈` `≥` `≤` `≠` | simbol matematis | `kurang lebih`, `lebih besar atau sama dengan`, dsb. atau notasi LaTeX | Pertahankan dalam rumus dan tabel; ganti dalam prosa jika ada padanan kata yang lebih jelas |
+| `│` `├` `└` `─` | box-drawing characters | tabel Markdown atau deskripsi tekstual | Model kadang menghasilkan diagram ASCII art; ganti dengan tabel atau deskripsi |
+
+**Prinsip penerapan:**
+
+1. Ganti simbol AI dengan padanan konvensional Indonesia yang setara maknanya. Jangan menghapus informasi; ganti bentuknya.
+2. Pertahankan simbol asli jika muncul dalam rumus, notasi teknis, kode program, atau tabel yang memang memerlukannya.
+3. Sesuaikan format revisi dengan format naskah asli. Jika naskah asli menggunakan tanda petik lurus, revisi juga harus menggunakan tanda petik lurus.
+4. Kemunculan tunggal em dash atau smart quote belum membuktikan asal AI — yang menjadi sinyal ialah penggunaan konsisten simbol Unicode tipografis yang tidak lazim di ekosistem penulisan Indonesia.
+5. Jangan mengganti simbol secara mekanis tanpa memeriksa apakah makna dan fungsi tanda baca tetap sama setelah penggantian.
+
 ## 9. Positif palsu yang harus dijaga
 
 Jangan menganggap bentuk berikut sebagai masalah tanpa konteks:
